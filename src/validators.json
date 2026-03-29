@@ -1,0 +1,5 @@
+[
+  { "id": "validator-1", "name": "Verun Validator 1", "weight": 1 },
+  { "id": "validator-2", "name": "Verun Validator 2", "weight": 1 },
+  { "id": "validator-3", "name": "Verun Validator 3", "weight": 1 }
+]
