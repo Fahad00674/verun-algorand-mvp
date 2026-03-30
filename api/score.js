@@ -1,0 +1,8 @@
+const { evaluateAgent } = require('../src/evaluate');
+
+module.exports = async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  const { agentId = 'agent', score = 0, operation = 'read' } = req.body || {};
+  const out = evaluateAgent({ agentId, score: Number(score), operation });
+  res.status(200).json(out);
+};
