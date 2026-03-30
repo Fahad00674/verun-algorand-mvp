@@ -35,8 +35,7 @@ async function goPlausibleVote(validator, agentId, score, operation) {
     }
     const url = `https://testnet-api.algonode.cloud/v2/accounts/${agentId}`;
     const res = await fetch(url, {
-      headers: { 'X-Algo-API-Token': '' },
-      signal: AbortSignal.timeout(5000)
+      headers: { 'X-Algo-API-Token': '' }
     });
 
     if (!res.ok) {
