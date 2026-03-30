@@ -2,7 +2,10 @@ require('dotenv').config();
 const algosdk = require('algosdk');
 
 async function anchorEvaluation(payload) {
-  const algod = new algosdk.Algodv2(process.env.ALGOD_TOKEN || '', process.env.ALGOD_URL, '');
+  const algod = new algosdk.Algodv2({
+    token: process.env.ALGOD_TOKEN || '',
+    baseServer: process.env.ALGOD_URL || 'https://testnet-api.algonode.cloud'
+  });
   const acct = algosdk.mnemonicToSecretKey(process.env.ALGO_MNEMONIC);
   const addr = String(acct.addr);
   const sp = await algod.getTransactionParams().do();
