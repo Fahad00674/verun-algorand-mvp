@@ -20,7 +20,19 @@ function scoreBasedVote(validator, score, operation) {
 // In production this would verify a DID/VC issued by GoPlausible.
 async function goPlausibleVote(validator, agentId, score, operation) {
   try {
-    // GoPlausible Remote MCP endpoint (Cloudflare Worker, testnet)
+    // Validate: Algorand addresses are 58 chars, base32
+    const isValidAddr = typeof agentId === 'string' && agentId.length === 58;
+    if (!isValidAddr) {
+      // No on-chain address — score-based fallback with GoPlausible policy
+      const req = { read: 300, transfer: 500, mint: 500, order: 600 };
+      const permitted = score >= (req[operation] ?? 300);
+      return {
+        vote: permitted ? (score >= 800 ? 'LOW' : score >= 600 ? 'MED' : 'HIGH') : 'BLOCK',
+        reason: 'no_algo_address_score_based_fallback',
+        source: 'goplausible_mcp',
+        status: 'testnet'
+      };
+    }
     const url = `https://testnet-api.algonode.cloud/v2/accounts/${agentId}`;
     const res = await fetch(url, {
       headers: { 'X-Algo-API-Token': '' },
