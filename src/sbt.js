@@ -12,6 +12,13 @@ function zeroAddress() {
   return algosdk.encodeAddress(new Uint8Array(32));
 }
 
+function normalizeMnemonic(raw) {
+  return String(raw || '')
+    .trim()
+    .replace(/^['"`]+|['"`]+$/g, '')
+    .replace(/\s+/g, ' ');
+}
+
 async function mintSBT({ agentId, score }) {
   if (!agentId) throw new Error('agentId required');
 
@@ -20,7 +27,8 @@ async function mintSBT({ agentId, score }) {
     baseServer: process.env.ALGOD_URL || 'https://testnet-api.algonode.cloud'
   });
 
-  const acct = algosdk.mnemonicToSecretKey(process.env.ALGO_MNEMONIC);
+  const mnemonic = normalizeMnemonic(process.env.ALGO_MNEMONIC);
+  const acct = algosdk.mnemonicToSecretKey(mnemonic);
   const sender = String(acct.addr);
   const params = await algod.getTransactionParams().do();
 

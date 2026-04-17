@@ -1,12 +1,20 @@
 require('dotenv').config();
 const algosdk = require('algosdk');
 
+function normalizeMnemonic(raw) {
+  return String(raw || '')
+    .trim()
+    .replace(/^['"`]+|['"`]+$/g, '')
+    .replace(/\s+/g, ' ');
+}
+
 async function anchorEvaluation(payload) {
   const algod = new algosdk.Algodv2({
     token: process.env.ALGOD_TOKEN || '',
     baseServer: process.env.ALGOD_URL || 'https://testnet-api.algonode.cloud'
   });
-  const acct = algosdk.mnemonicToSecretKey(process.env.ALGO_MNEMONIC);
+  const mnemonic = normalizeMnemonic(process.env.ALGO_MNEMONIC);
+  const acct = algosdk.mnemonicToSecretKey(mnemonic);
   const addr = String(acct.addr);
   const sp = await algod.getTransactionParams().do();
 
