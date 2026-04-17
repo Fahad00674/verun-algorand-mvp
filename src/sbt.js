@@ -8,6 +8,10 @@ function tierFromScore(score) {
   return 'BLOCK';
 }
 
+function zeroAddress() {
+  return algosdk.encodeAddress(new Uint8Array(32));
+}
+
 async function mintSBT({ agentId, score }) {
   if (!agentId) throw new Error('agentId required');
 
@@ -29,6 +33,8 @@ async function mintSBT({ agentId, score }) {
 
   const note = new Uint8Array(Buffer.from(JSON.stringify(metadata)).slice(0, 900));
 
+  const ZERO = zeroAddress();
+
   const txn = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
     sender,
     suggestedParams: params,
@@ -37,6 +43,9 @@ async function mintSBT({ agentId, score }) {
     defaultFrozen: true,
     unitName: 'VSBT',
     assetName: `Verun SBT ${agentId}`.slice(0, 32),
+    manager: ZERO,
+    reserve: ZERO,
+    freeze: ZERO,
     clawback: sender,
     note
   });
@@ -50,8 +59,14 @@ async function mintSBT({ agentId, score }) {
     assetId,
     txid,
     explorer: `https://testnet.algoexplorer.io/tx/${txid}`,
-    metadata
+    metadata,
+    roles: {
+      manager: ZERO,
+      reserve: ZERO,
+      freeze: ZERO,
+      clawback: sender
+    }
   };
 }
 
-module.exports = { mintSBT, tierFromScore };
+module.exports = { mintSBT, tierFromScore, zeroAddress };
