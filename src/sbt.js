@@ -22,10 +22,11 @@ function normalizeMnemonic(raw) {
 async function mintSBT({ agentId, score }) {
   if (!agentId) throw new Error('agentId required');
 
-  const algod = new algosdk.Algodv2({
-    token: process.env.ALGOD_TOKEN || '',
-    baseServer: process.env.ALGOD_URL || 'https://testnet-api.algonode.cloud'
-  });
+  const algod = new algosdk.Algodv2(
+    process.env.ALGOD_TOKEN || '',
+    process.env.ALGOD_URL || 'https://testnet-api.algonode.cloud',
+    ''
+  );
 
   const mnemonic = normalizeMnemonic(process.env.ALGO_MNEMONIC);
   const acct = algosdk.mnemonicToSecretKey(mnemonic);
