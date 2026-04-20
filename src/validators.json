@@ -1,60 +1,20 @@
 [
   {
-    "id": "val-verun-eu-01",
-    "name": "Verun EU-01",
+    "id": "val-bcp-01",
+    "name": "BCP Partners",
     "type": "internal",
-    "description": "Verun internal EU compliance node. Enforces MiCA Art. 68 + FATF thresholds.",
+    "description": "BCP Partners GmbH — Founding Validator. MiCA Art. 68 compliance node. Enforces Verun score tiers and operation gates.",
     "status": "active",
     "policy": "score_based",
     "weight": 1,
     "api": null
   },
   {
-    "id": "val-verun-neutral-02",
-    "name": "Verun Neutral-02",
-    "type": "internal",
-    "description": "Verun internal jurisdiction-neutral node. Risk-based scoring with AML cross-reference.",
-    "status": "active",
-    "policy": "score_based",
-    "weight": 1,
-    "api": null
-  },
-  {
-    "id": "val-goplausible-03",
-    "name": "GoPlausible",
-    "type": "external",
-    "description": "W3C DID + Verifiable Credentials validator on Algorand. x402 Facilitator. Identity-based scoring.",
-    "status": "testnet",
-    "policy": "did_vc_based",
-    "weight": 1,
-    "api": {
-      "type": "mcp",
-      "endpoint": "https://algorand-mcp.goplausible.xyz",
-      "network": "testnet",
-      "docs": "https://github.com/GoPlausible/algorand-mcp"
-    }
-  },
-  {
-    "id": "val-noah-04",
-    "name": "Noah",
-    "type": "external",
-    "description": "VASP-licensed payment compliance node. EU + US licensed. AML/CFT scoring via Global Payouts API.",
-    "status": "testnet",
-    "policy": "aml_payment_based",
-    "weight": 1,
-    "api": {
-      "type": "rest",
-      "endpoint": "https://api-sandbox.noah.com",
-      "network": "testnet",
-      "docs": "https://docs.noah.com"
-    }
-  },
-  {
-    "id": "val-tokenforge-05",
+    "id": "val-tokenforge-02",
     "name": "tokenforge",
     "type": "external",
-    "description": "Founding Validator. eWpG-compliant German Security Token platform. Chain API gate for Mint/Transfer/Order.",
-    "status": "founding",
+    "description": "Founding Validator. eWpG-compliant German Security Token platform (TokenSuite). Chain API gate enforces Score 300+ read, 500+ transfer/mint, 600+ order.",
+    "status": "active",
     "policy": "chain_api_based",
     "weight": 1,
     "api": {
@@ -63,5 +23,15 @@
       "network": "testnet",
       "docs": "https://docs.tokenforge.io"
     }
+  },
+  {
+    "id": "val-test-03",
+    "name": "Test Validator",
+    "type": "internal",
+    "description": "Raw test validator. Always returns a score-based vote. For development and 3rd-slot consensus only — not for production.",
+    "status": "test",
+    "policy": "score_based",
+    "weight": 1,
+    "api": null
   }
 ]

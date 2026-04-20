@@ -30,17 +30,16 @@ function kickbackRate(score) {
  * @param {string[]} validatorIds - optional subset of validator IDs to use (min 2 for consensus)
  */
 async function evaluateAgent({ agentId, score, operation = 'read', validatorIds = null }) {
-  // Select validators — default: first two internal ones (fast, no external calls)
+  // Select validators — default: all three (BCP Partners + tokenforge + Test Validator)
   let selected;
   if (validatorIds && validatorIds.length >= 2) {
     selected = ALL_VALIDATORS.filter(v => validatorIds.includes(v.id));
   } else {
-    // Default: both internal validators only
-    selected = ALL_VALIDATORS.filter(v => v.type === 'internal');
+    selected = ALL_VALIDATORS; // default: all validators
   }
 
   if (selected.length < 2) {
-    selected = ALL_VALIDATORS.filter(v => v.type === 'internal');
+    selected = ALL_VALIDATORS;
   }
 
   // Call all selected validators in parallel
