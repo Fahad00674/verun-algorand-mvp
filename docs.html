@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verun Protocol — Algorand Technical Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-theme">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg-sidebar:#f8f9fa;--border:#e5e7eb;--border-light:#f0f1f3;
+  --text:#1f2937;--text-secondary:#4b5563;--text-muted:#9ca3af;
+  --accent:#00b386;--accent-bg:#f0fdf9;--accent-border:#6ee7d0;
+  --violet:#7c3aed;--violet-bg:#f5f3ff;
+  --code-bg:#f8f9fa;--sidebar-w:260px;--topbar-h:56px;
+  --font:'Inter',system-ui,sans-serif;--mono:'Fira Code',monospace;
+}
+body.dark{
+  --bg:#07111F;--bg-sidebar:#0d1b2a;--border:#1e3448;--border-light:#172840;
+  --text:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#475569;
+  --accent:#00D4AA;--accent-bg:rgba(0,212,170,0.08);--accent-border:rgba(0,212,170,0.3);
+  --violet-bg:rgba(123,97,255,0.08);--code-bg:#060f1a;
+}
+html{scroll-behavior:smooth;font-size:15px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;transition:background .2s,color .2s}
+
+/* TOPBAR */
+#topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:var(--bg-sidebar);border-bottom:1px solid var(--border);display:flex;align-items:center;z-index:200}
+.tb-brand{width:var(--sidebar-w);flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 20px;border-right:1px solid var(--border);height:100%}
+.tb-icon{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#00D4AA,#7B61FF);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.tb-site-name{font-size:13px;font-weight:600;color:var(--text)}
+.tb-center{flex:1;display:flex;align-items:center;padding:0 32px}
+.tb-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;width:240px;color:var(--text-muted);font-size:12px}
+.tb-search kbd{margin-left:auto;font-family:var(--mono);font-size:10px;background:var(--border-light);border:1px solid var(--border);border-radius:3px;padding:1px 5px;color:var(--text-muted)}
+.tb-right{display:flex;align-items:center;gap:8px;padding:0 20px;margin-left:auto}
+.tb-link{font-size:12px;color:var(--text-secondary);text-decoration:none;padding:5px 10px;border-radius:5px;transition:background .15s;white-space:nowrap}
+.tb-link:hover{background:var(--border-light)}
+.tb-theme-btn{background:transparent;border:1px solid var(--border);color:var(--text-secondary);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:12px;font-family:var(--font);transition:all .15s}
+.tb-theme-btn:hover{background:var(--border-light)}
+.hamburger{display:none;background:transparent;border:none;color:var(--text-secondary);font-size:18px;cursor:pointer;padding:6px 16px}
+
+/* SIDEBAR */
+#sidebar{position:fixed;top:var(--topbar-h);left:0;bottom:0;width:var(--sidebar-w);background:var(--bg-sidebar);border-right:1px solid var(--border);overflow-y:auto;padding:12px 0 40px;z-index:100;transition:transform .25s}
+#sidebar::-webkit-scrollbar{width:4px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.nav-group-label{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:16px 16px 6px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:6px 16px;font-size:13px;color:var(--text-secondary);text-decoration:none;cursor:pointer;border-left:2px solid transparent;transition:all .12s;user-select:none}
+.nav-item:hover{color:var(--text);background:var(--border-light)}
+.nav-item.active{color:var(--accent);background:var(--accent-bg);border-left-color:var(--accent);font-weight:500}
+.nav-item-icon{font-size:14px;flex-shrink:0;width:18px;text-align:center}
+.nav-item-ext{margin-left:auto;font-size:10px;color:var(--text-muted);opacity:.7}
+.nav-sub .nav-item{font-size:12.5px;padding:5px 16px 5px 42px}
+.nav-divider{height:1px;background:var(--border);margin:8px 16px}
+
+/* MAIN */
+#main{margin-left:var(--sidebar-w);min-height:calc(100vh - var(--topbar-h));padding-top:var(--topbar-h);display:flex}
+#content{flex:1;padding:48px 48px 80px;max-width:800px}
+#toc{width:220px;flex-shrink:0;padding:40px 16px 40px 0}
+.toc-sticky{position:sticky;top:calc(var(--topbar-h) + 24px)}
+.toc-label{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.toc-item{display:block;font-size:12px;color:var(--text-muted);text-decoration:none;padding:3px 0 3px 10px;border-left:2px solid transparent;transition:all .12s;line-height:1.4}
+.toc-item:hover{color:var(--text);border-left-color:var(--border)}
+.toc-item.active{color:var(--accent);border-left-color:var(--accent)}
+
+/* TYPOGRAPHY */
+h1{font-size:28px;font-weight:700;line-height:1.25;margin-bottom:16px;color:var(--text)}
+h2{font-size:18px;font-weight:600;line-height:1.35;margin:40px 0 12px;color:var(--text);padding-top:8px;border-top:1px solid var(--border-light)}
+h2:first-of-type{border-top:none;margin-top:24px}
+h3{font-size:14px;font-weight:600;margin:24px 0 8px;color:var(--text)}
+p{margin-bottom:14px;color:var(--text-secondary);font-size:14px}
+p:last-child{margin-bottom:0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+strong{color:var(--text);font-weight:600}
+.lead{font-size:15px;color:var(--text-secondary);margin-bottom:24px;line-height:1.75}
+
+/* HINTS */
+.hint{border-radius:8px;padding:14px 18px;margin:20px 0;border-left:4px solid;font-size:13.5px;line-height:1.65}
+.hint.info{background:var(--accent-bg);border-color:var(--accent);color:#065f46}
+body.dark .hint.info{color:#6ee7b7}
+.hint.note{background:var(--violet-bg);border-color:#7c3aed;color:#5b21b6}
+body.dark .hint.note{color:#a78bfa}
+.hint.success{background:#f0fdf4;border-color:#16a34a;color:#166534}
+body.dark .hint.success{background:rgba(22,163,74,0.08);color:#4ade80}
+
+/* PARTS GRID */
+.parts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}
+.part-card{border:1px solid var(--border);border-radius:8px;padding:20px;cursor:pointer;text-decoration:none;display:block;transition:border-color .15s,box-shadow .15s;background:var(--bg)}
+.part-card:hover{border-color:var(--accent);box-shadow:0 1px 8px rgba(0,0,0,0.06);text-decoration:none}
+.part-card-icon{font-size:20px;margin-bottom:10px}
+.part-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.part-card-desc{font-size:11.5px;color:var(--text-muted);line-height:1.5}
+
+/* TABLE */
+.doc-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.doc-table th{text-align:left;padding:8px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);background:var(--bg-sidebar);border-bottom:1px solid var(--border)}
+.doc-table td{padding:10px 12px;border-bottom:1px solid var(--border-light);vertical-align:top;color:var(--text-secondary)}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:hover td{background:var(--bg-sidebar)}
+.td-name{font-weight:600;color:var(--text)!important;font-family:var(--mono);font-size:12px!important}
+.td-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;font-family:var(--mono);white-space:nowrap}
+.badge-live{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+body.dark .badge-live{background:rgba(22,163,74,0.12);color:#4ade80;border-color:rgba(22,163,74,0.3)}
+.badge-get{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe}
+body.dark .badge-get{background:rgba(29,78,216,0.12);color:#60a5fa;border-color:rgba(29,78,216,0.3)}
+.badge-post{background:var(--accent-bg);color:#065f46;border:1px solid var(--accent-border)}
+body.dark .badge-post{background:rgba(0,212,170,0.1);color:#6ee7b7;border-color:rgba(0,212,170,0.3)}
+
+/* CODE */
+.code-block{position:relative;margin:16px 0;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--bg-sidebar);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--text-muted)}
+.copy-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-family:var(--font);transition:all .15s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+pre{margin:0}
+pre code.hljs{background:var(--code-bg)!important;padding:18px 20px!important;font-size:12.5px!important;line-height:1.65!important;font-family:var(--mono)!important;border-radius:0!important}
+code:not(.hljs){font-family:var(--mono);font-size:12px;background:var(--bg-sidebar);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--accent)}
+
+/* GATE ROWS */
+.gate-row{display:flex;align-items:center;gap:16px;padding:12px 16px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:var(--bg)}
+.gate-score{font-family:var(--mono);font-size:14px;font-weight:700;min-width:52px}
+.gate-score.s1{color:#16a34a}.gate-score.s2{color:#d97706}.gate-score.s3{color:#dc2626}.gate-score.s4{color:#7c3aed}
+.gate-info{flex:1}
+.gate-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.gate-desc{font-size:12px;color:var(--text-muted);font-family:var(--mono)}
+
+/* FEE BAR */
+.fee-bar{display:flex;border-radius:6px;overflow:hidden;height:36px;margin:16px 0;gap:2px}
+.fee-seg{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;font-family:var(--mono)}
+.fee-seg.p{background:#dbeafe;color:#1d4ed8;flex:70}
+.fee-seg.v{background:#dcfce7;color:#15803d;flex:10}
+.fee-seg.a{background:var(--violet-bg);color:#7c3aed;flex:10}
+.fee-seg.r{background:var(--border-light);color:var(--text-muted);flex:10}
+body.dark .fee-seg.p{background:rgba(29,78,216,0.15);color:#60a5fa}
+body.dark .fee-seg.v{background:rgba(22,163,74,0.12);color:#4ade80}
+body.dark .fee-seg.a{background:rgba(124,58,237,0.12);color:#a78bfa}
+body.dark .fee-seg.r{background:rgba(255,255,255,0.04);color:var(--text-muted)}
+.fee-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-muted)}
+.fee-leg{display:flex;align-items:center;gap:6px}
+.fee-dot{width:8px;height:8px;border-radius:3px}
+
+/* CHAIN TAGS */
+.chain-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.chain-tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:5px 12px;border-radius:6px;border:1px solid var(--border);color:var(--text-secondary);background:var(--bg-sidebar)}
+.chain-tag.preferred{background:var(--accent-bg);border-color:var(--accent-border);color:#065f46;font-weight:600}
+body.dark .chain-tag.preferred{color:#6ee7b7}
+
+/* NEXT BTN */
+.next-prev{display:flex;justify-content:flex-end;margin-top:48px;padding-top:24px;border-top:1px solid var(--border)}
+.next-btn{display:flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid var(--border);border-radius:8px;text-decoration:none;color:var(--text-secondary);font-size:13px;transition:all .15s;cursor:pointer;background:var(--bg)}
+.next-btn:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+.next-btn-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px}
+
+/* VALIDATOR GRID */
+.v-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.v-card{border:1px solid var(--border);border-radius:8px;padding:18px;background:var(--bg)}
+.v-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.v-card-body{font-size:12.5px;color:var(--text-secondary);line-height:1.6}
+.v-badge{display:inline-block;margin-top:10px;font-size:10px;font-weight:600;font-family:var(--mono);padding:3px 9px;border-radius:4px;background:var(--accent-bg);color:#065f46;border:1px solid var(--accent-border)}
+body.dark .v-badge{color:#6ee7b7}
+
+/* LIVE BADGE */
+.live-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;font-family:var(--mono)}
+body.dark .live-badge{background:rgba(22,163,74,0.12);color:#4ade80;border-color:rgba(22,163,74,0.3)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#16a34a;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:2px}
+.tl-item{display:flex;gap:18px;padding-bottom:28px}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0}
+.tl-dot-outer{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--bg-sidebar);z-index:1;flex-shrink:0;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--text-muted)}
+.tl-dot-outer.active{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.tl-line{width:2px;flex:1;background:var(--border);margin:3px 0}
+.tl-item:last-child .tl-line{display:none}
+.tl-body{padding-top:4px;flex:1}
+.tl-period{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.tl-period.active{color:var(--accent)}
+.tl-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
+.tl-desc{font-size:13px;color:var(--text-secondary);line-height:1.65}
+.tl-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--bg-sidebar);border:1px solid var(--border);color:var(--text-muted);font-family:var(--mono)}
+
+/* FOOTER */
+#footer{margin-left:var(--sidebar-w);border-top:1px solid var(--border);padding:16px 48px;display:flex;align-items:center;justify-content:space-between}
+.footer-txt{font-size:11px;color:var(--text-muted)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){#toc{display:none}}
+@media(max-width:860px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0);box-shadow:4px 0 16px rgba(0,0,0,0.1)}
+  #main,#footer{margin-left:0}
+  .hamburger{display:block}
+  .tb-search{display:none}
+  .tb-brand{width:auto;border-right:none}
+  #content{padding:32px 24px 64px}
+  .parts-grid{grid-template-columns:1fr 1fr}
+  .v-grid{grid-template-columns:1fr}
+}
+@media(max-width:540px){.parts-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body class="dark">
+
+<div id="topbar">
+  <div class="tb-brand">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <div class="tb-icon">V</div>
+    <span class="tb-site-name">Verun — Algorand Docs</span>
+  </div>
+  <div class="tb-center">
+    <div class="tb-search">
+      <svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="7"/><path d="m15 15 4 4"/></svg>
+      Search docs…
+      <kbd>⌘ K</kbd>
+    </div>
+  </div>
+  <div class="tb-right">
+    <a class="tb-link" href="https://www.bcpp.io" target="_blank">BCP Partners</a>
+    <a class="tb-link" href="https://github.com/rafaschul/verun-algorand-mvp" target="_blank">GitHub ↗</a>
+    <button class="tb-theme-btn" onclick="toggleTheme()"><span id="theme-icon">☀️</span> <span id="theme-lbl">Light</span></button>
+  </div>
+</div>
+
+<nav id="sidebar">
+  <a class="nav-item active" onclick="show('welcome')" href="javascript:void(0)">
+    <span class="nav-item-icon">🏠</span> Welcome
+  </a>
+  <div class="nav-group-label">Protocol</div>
+  <a class="nav-item" onclick="show('overview')" href="javascript:void(0)"><span class="nav-item-icon">📖</span> Overview</a>
+  <a class="nav-item" onclick="show('architecture')" href="javascript:void(0)"><span class="nav-item-icon">🏗️</span> Architecture</a>
+  <a class="nav-item" onclick="show('trust-gates')" href="javascript:void(0)"><span class="nav-item-icon">🔐</span> Trust Score Gates</a>
+  <a class="nav-item" onclick="show('mica')" href="javascript:void(0)"><span class="nav-item-icon">⚖️</span> MiCA Compliance</a>
+  <a class="nav-item" onclick="show('validators')" href="javascript:void(0)"><span class="nav-item-icon">🛡️</span> Validator Model</a>
+  <div class="nav-group-label">API Reference</div>
+  <a class="nav-item" onclick="show('api')" href="javascript:void(0)"><span class="nav-item-icon">⚡</span> Endpoints</a>
+  <div class="nav-sub">
+    <a class="nav-item" onclick="show('api');scrollToEl('ep-health')" href="javascript:void(0)">GET /health</a>
+    <a class="nav-item" onclick="show('api');scrollToEl('ep-validators')" href="javascript:void(0)">GET /validators</a>
+    <a class="nav-item" onclick="show('api');scrollToEl('ep-evaluate')" href="javascript:void(0)">POST /evaluate</a>
+    <a class="nav-item" onclick="show('api');scrollToEl('ep-score')" href="javascript:void(0)">POST /score</a>
+  </div>
+  <div class="nav-group-label">On-Chain</div>
+  <a class="nav-item" onclick="show('anchor')" href="javascript:void(0)"><span class="nav-item-icon">⛓️</span> Algorand Anchor</a>
+  <a class="nav-item" onclick="show('sbt')" href="javascript:void(0)"><span class="nav-item-icon">🪙</span> Soulbound Token (SBT)</a>
+  <div class="nav-group-label">Roadmap</div>
+  <a class="nav-item" onclick="show('roadmap')" href="javascript:void(0)"><span class="nav-item-icon">🗺️</span> Mainnet Roadmap</a>
+  <div class="nav-divider"></div>
+  <a class="nav-item" href="https://docs.tokenforge.io/tokensuite-docs" target="_blank">
+    <span class="nav-item-icon">↗</span> tokenforge Docs <span class="nav-item-ext">↗</span>
+  </a>
+  <a class="nav-item" href="https://github.com/rafaschul/verun-algorand-mvp" target="_blank">
+    <span class="nav-item-icon">↗</span> GitHub Repo <span class="nav-item-ext">↗</span>
+  </a>
+  <a class="nav-item" href="https://verun-algorand-mvp.vercel.app" target="_blank">
+    <span class="nav-item-icon">↗</span> Live Demo <span class="nav-item-ext">↗</span>
+  </a>
+  <a class="nav-item" href="https://www.bcpp.io" target="_blank">
+    <span class="nav-item-icon">↗</span> BCP Partners GmbH <span class="nav-item-ext">↗</span>
+  </a>
+</nav>
+
+<div id="main">
+<div id="content">
+
+<!-- WELCOME -->
+<div id="page-welcome">
+  <h1>Verun Protocol — Algorand</h1>
+  <p style="margin-bottom:12px">
+    <span class="live-badge"><span class="live-dot"></span>LIVE on Algorand Testnet</span>
+    &nbsp;&nbsp;<span style="font-size:12px;color:var(--text-muted)">Deployed April 2026 · 4 API Endpoints · v0.1.0</span>
+  </p>
+  <p class="lead">Technical documentation for <strong>Verun Protocol</strong> — the MiCA-compliant AI Agent Trust Layer for regulated European finance, built on Algorand by <a href="https://www.bcpp.io" target="_blank">BCP Partners GmbH</a>.</p>
+  <div class="hint info">
+    🔐 <strong>"KYC for humans. KYA for agents. Both auditable on-chain."</strong><br>
+    Verun issues consensus-based Trust Scores (0–1000) that gate access to the tokenforge Chain API. Every evaluation is anchored as a Note Transaction on Algorand — immutable, auditable, MiCA Art. 75 compliant.
+  </div>
+  <div class="parts-grid">
+    <a class="part-card" onclick="show('architecture')" href="javascript:void(0)">
+      <div class="part-card-icon">🏗️</div>
+      <div class="part-card-title">Part 1: Architecture</div>
+      <div class="part-card-desc">Algorand Trust Layer, tokenforge Gate, Stellar Settlement. How the three layers connect.</div>
+    </a>
+    <a class="part-card" onclick="show('api')" href="javascript:void(0)">
+      <div class="part-card-icon">⚡</div>
+      <div class="part-card-title">Part 2: API Reference</div>
+      <div class="part-card-desc">All live endpoints with request / response examples. Base URL on Vercel.</div>
+    </a>
+    <a class="part-card" onclick="show('anchor')" href="javascript:void(0)">
+      <div class="part-card-icon">⛓️</div>
+      <div class="part-card-title">Part 3: On-Chain Anchor</div>
+      <div class="part-card-desc">How every verdict is written to Algorand and verified via Algoexplorer.</div>
+    </a>
+  </div>
+  <div class="next-prev"><button class="next-btn" onclick="show('overview')"><div><span class="next-btn-lbl">Next</span>Overview →</div></button></div>
+</div>
+
+<!-- OVERVIEW -->
+<div id="page-overview" style="display:none">
+  <h1>Overview</h1>
+  <p class="lead">Verun is the trust infrastructure layer for AI agents operating in regulated European financial markets.</p>
+  <h2>What is Verun?</h2>
+  <p>As AI agents begin autonomously executing token transfers, minting securities, and placing investment orders, there is no existing standard for establishing <em>who</em> an agent is, whether it can be trusted, and whether it is permitted to act in a regulated context.</p>
+  <p>Verun solves this with the <strong>Verun Accredited Agent Score (0–1000)</strong>: a consensus-based trust verdict issued by registered validators, anchored on Algorand for every evaluation, and enforced at the tokenforge Chain API gate.</p>
+  <div class="hint note">🔮 <strong>Regulatory context:</strong> Verun provides the machine-readable audit trail required by MiCA Art. 67, Art. 72, and Art. 75 for agents acting in regulated financial workflows. Verun does not build its own KYA — it aggregates existing compliance signals into a single, auditable verdict.</div>
+  <h2>Key Facts</h2>
+  <table class="doc-table">
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td class="td-name">Trust Score Range</td><td>0 – 1000</td></tr>
+      <tr><td class="td-name">Consensus Model</td><td>2-of-N validator votes required (ceil N/2)</td></tr>
+      <tr><td class="td-name">Anchor Chain</td><td>Algorand Testnet — Note Transaction per evaluation</td></tr>
+      <tr><td class="td-name">Settlement Layer</td><td>Stellar — eWpG, ISIN, EURC</td></tr>
+      <tr><td class="td-name">Regulated Gate</td><td>tokenforge Chain API — eWpG, BaFin, MiFID II</td></tr>
+      <tr><td class="td-name">Fee Split</td><td>70% Protocol / 10% Validator / 10% Agent Kickback / 10% Reserve</td></tr>
+      <tr><td class="td-name">Live URL</td><td><a href="https://verun-algorand-mvp.vercel.app" target="_blank">verun-algorand-mvp.vercel.app</a></td></tr>
+    </tbody>
+  </table>
+  <h2>3 Operating Modes</h2>
+  <table class="doc-table">
+    <thead><tr><th>Mode</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td class="td-name">Discovery</td><td>Agent scans validated platforms, finds tokenforge, sends structured recommendation to human</td></tr>
+      <tr><td class="td-name">Supervised</td><td>Human receives recommendation, approves with one click — agent executes single action</td></tr>
+      <tr><td class="td-name">Autonomous</td><td>After human approval: agent executes fully automatically, every action anchored on-chain</td></tr>
+    </tbody>
+  </table>
+  <div class="next-prev"><button class="next-btn" onclick="show('architecture')"><div><span class="next-btn-lbl">Next</span>Architecture →</div></button></div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div id="page-architecture" style="display:none">
+  <h1>Architecture</h1>
+  <p class="lead">Three complementary layers — Algorand for trust, tokenforge as the regulated gate, Stellar for settlement. No layer competes with another.</p>
+  <h2>Layer Stack</h2>
+  <div class="chain-row">
+    <div class="chain-tag preferred">🔷 Algorand — Agentic Trust Layer</div>
+    <div class="chain-tag preferred">🔗 tokenforge — Regulated Gate</div>
+    <div class="chain-tag preferred">⭐ Stellar — Asset Settlement</div>
+  </div>
+  <h2>Flow</h2>
+  <div style="border:1px solid var(--border);border-radius:8px;padding:28px 24px;background:var(--bg-sidebar);font-family:var(--mono);font-size:12px;margin:16px 0;overflow-x:auto">
+    <div style="display:flex;align-items:center;gap:0;min-width:520px">
+      <div style="text-align:center;flex:1">
+        <div style="border:1px solid var(--accent-border);background:var(--accent-bg);border-radius:6px;padding:10px 14px;color:#065f46;font-weight:600;font-size:12px">Agent<br><span style="font-size:10px;opacity:.7;font-weight:400">Claude · MCP</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:5px">Caller</div>
+      </div>
+      <div style="padding:0 8px;color:var(--text-muted);font-size:18px;flex-shrink:0">→</div>
+      <div style="text-align:center;flex:1">
+        <div style="border:1px solid var(--accent-border);background:var(--accent-bg);border-radius:6px;padding:10px 14px;color:#065f46;font-weight:600;font-size:12px">Verun<br><span style="font-size:10px;opacity:.7;font-weight:400">Score + Consensus</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:5px">Trust Gate</div>
+      </div>
+      <div style="padding:0 8px;color:var(--text-muted);font-size:18px;flex-shrink:0">→</div>
+      <div style="text-align:center;flex:1">
+        <div style="border:1px solid #ddd6fe;background:var(--violet-bg);border-radius:6px;padding:10px 14px;color:#5b21b6;font-weight:600;font-size:12px">Algorand<br><span style="font-size:10px;opacity:.7;font-weight:400">Note Tx Anchor</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:5px">Audit Trail</div>
+      </div>
+      <div style="padding:0 8px;color:var(--text-muted);font-size:18px;flex-shrink:0">→</div>
+      <div style="text-align:center;flex:1">
+        <div style="border:1px solid #bfdbfe;background:#eff6ff;border-radius:6px;padding:10px 14px;color:#1d4ed8;font-weight:600;font-size:12px">tokenforge<br><span style="font-size:10px;opacity:.7;font-weight:400">Chain API Gate</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:5px">Execution</div>
+      </div>
+      <div style="padding:0 8px;color:var(--text-muted);font-size:18px;flex-shrink:0">→</div>
+      <div style="text-align:center;flex:1">
+        <div style="border:1px solid #fde68a;background:#fffbeb;border-radius:6px;padding:10px 14px;color:#92400e;font-weight:600;font-size:12px">⭐ Stellar<br><span style="font-size:10px;opacity:.7;font-weight:400">eWpG · EURC</span></div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:5px">Settlement</div>
+      </div>
+    </div>
+  </div>
+  <h2>Fee Distribution</h2>
+  <div class="fee-bar">
+    <div class="fee-seg p">70% Protocol</div>
+    <div class="fee-seg v">10% Val.</div>
+    <div class="fee-seg a">10% Agent</div>
+    <div class="fee-seg r">10% Res.</div>
+  </div>
+  <div class="fee-legend">
+    <div class="fee-leg"><div class="fee-dot" style="background:#93c5fd"></div>70% Protocol — Infrastructure &amp; Security</div>
+    <div class="fee-leg"><div class="fee-dot" style="background:#86efac"></div>10% Validator — Trust Anchor Reward</div>
+    <div class="fee-leg"><div class="fee-dot" style="background:#c4b5fd"></div>10% Agent Kickback — Referral Incentive</div>
+    <div class="fee-leg"><div class="fee-dot" style="background:#e5e7eb"></div>10% Reserve — Emergency / Upgrade Fund</div>
+  </div>
+  <div class="next-prev"><button class="next-btn" onclick="show('trust-gates')"><div><span class="next-btn-lbl">Next</span>Trust Score Gates →</div></button></div>
+</div>
+
+<!-- TRUST GATES -->
+<div id="page-trust-gates" style="display:none">
+  <h1>Trust Score Gates</h1>
+  <p class="lead">Every tokenforge Chain API capability is gated behind a minimum Trust Score. Scores are computed by validator consensus and anchored on Algorand.</p>
+  <div class="gate-row">
+    <div class="gate-score s1">300+</div>
+    <div class="gate-info"><div class="gate-title">Read Access</div><div class="gate-desc">GET /balance · GET /tokens · GET /positions</div></div>
+    <span class="td-badge badge-get">READ</span>
+  </div>
+  <div class="gate-row">
+    <div class="gate-score s2">500+</div>
+    <div class="gate-info"><div class="gate-title">Transfer &amp; Mint</div><div class="gate-desc">POST /transfer · POST /mint — tokenized securities via tokenforge</div></div>
+    <span class="td-badge badge-post">MINT / TRANSFER</span>
+  </div>
+  <div class="gate-row">
+    <div class="gate-score s3">600+</div>
+    <div class="gate-info"><div class="gate-title">Order Management</div><div class="gate-desc">POST /order · PATCH /order — Full tokenforge Order Engine</div></div>
+    <span class="td-badge badge-post">ORDER</span>
+  </div>
+  <div class="gate-row">
+    <div class="gate-score s4">800+</div>
+    <div class="gate-info"><div class="gate-title">LOW Risk Tier + Full Kickback</div><div class="gate-desc">10% agent kickback active · highest trust tier · autonomous mode eligible</div></div>
+    <span class="td-badge" style="background:var(--violet-bg);color:#7c3aed;border:1px solid #ddd6fe">TIER: LOW</span>
+  </div>
+  <h2>Score Tiers</h2>
+  <table class="doc-table">
+    <thead><tr><th>Tier</th><th>Score</th><th>Permitted Operations</th><th>Kickback</th></tr></thead>
+    <tbody>
+      <tr><td class="td-name" style="color:#16a34a!important">LOW</td><td>800 – 1000</td><td>All operations</td><td>10%</td></tr>
+      <tr><td class="td-name" style="color:#d97706!important">MED</td><td>600 – 799</td><td>read, transfer, mint, order</td><td>5%</td></tr>
+      <tr><td class="td-name" style="color:#dc2626!important">HIGH</td><td>300 – 599</td><td>read, transfer, mint</td><td>0%</td></tr>
+      <tr><td class="td-name" style="color:#6b7280!important">BLOCK</td><td>0 – 299</td><td>None — access denied</td><td>0%</td></tr>
+    </tbody>
+  </table>
+  <div class="next-prev"><button class="next-btn" onclick="show('mica')"><div><span class="next-btn-lbl">Next</span>MiCA Compliance →</div></button></div>
+</div>
+
+<!-- MICA -->
+<div id="page-mica" style="display:none">
+  <h1>MiCA Compliance</h1>
+  <p class="lead">Verun is designed to satisfy MiCA obligations for AI agents acting as CASPs (Crypto-Asset Service Providers) in regulated European financial operations.</p>
+  <div class="hint info">⚖️ <strong>Scope:</strong> MiCA (Markets in Crypto-Assets Regulation) came into full effect December 2024 across all EU member states. Verun targets CASPs under Title V, with specific attention to Articles 67, 68, 72, and 75.</div>
+  <h2>Article Mapping</h2>
+  <table class="doc-table">
+    <thead><tr><th>Article</th><th>Requirement</th><th>Verun Implementation</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Art. 67</td>
+        <td>Operational Risk Management</td>
+        <td>Every evaluation anchored on-chain. Anchor failure is non-blocking — verdict is preserved regardless.</td>
+      </tr>
+      <tr>
+        <td class="td-name">Art. 68</td>
+        <td>CASP Authorization</td>
+        <td>Score-gated access. No agent may call tokenforge Chain API without a valid Verun verdict ≥ 300.</td>
+      </tr>
+      <tr>
+        <td class="td-name">Art. 72</td>
+        <td>AML/CFT Obligations</td>
+        <td>2-of-N validator consensus before any transfer or mint operation. Single-validator manipulation impossible.</td>
+      </tr>
+      <tr>
+        <td class="td-name">Art. 75</td>
+        <td>Record-Keeping / Audit Trail</td>
+        <td>Algorand Note Transaction per verdict. Timestamp, agentId, score, consensus, operation all written on-chain.</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="hint note">🔮 <strong>tokenforge alignment:</strong> tokenforge (TokenSuite) is eWpG-compliant, BaFin-relevant, and MiFID II-ready. The Verun × tokenforge integration inherits and extends this compliance stack for the agentic layer.</div>
+  <div class="next-prev"><button class="next-btn" onclick="show('validators')"><div><span class="next-btn-lbl">Next</span>Validator Model →</div></button></div>
+</div>
+
+<!-- VALIDATORS -->
+<div id="page-validators" style="display:none">
+  <h1>Validator Model</h1>
+  <p class="lead">Validators are the institutional backbone of Verun. They provide the consensus votes required for every agent evaluation.</p>
+  <h2>Active Validators (Testnet)</h2>
+  <div class="v-grid">
+    <div class="v-card">
+      <div class="v-card-title">BCP Partners GmbH</div>
+      <div class="v-card-body">Founding Validator. MiCA compliance node operated by BCP Partners. Enforces Verun score tiers and operation gates. EU-regulated. Contact: <a href="https://www.bcpp.io" target="_blank">bcpp.io</a></div>
+      <span class="v-badge">Founding · Active</span>
+    </div>
+    <div class="v-card">
+      <div class="v-card-title">tokenforge</div>
+      <div class="v-card-body">Founding Validator. eWpG-compliant German Security Token platform (TokenSuite). Chain API gate enforces Score 300+ read, 500+ transfer/mint, 600+ order. BaFin-relevant, MiFID II-ready.</div>
+      <span class="v-badge">Founding · Active</span>
+    </div>
+    <div class="v-card">
+      <div class="v-card-title">Test Validator</div>
+      <div class="v-card-body">Raw score-based validator. Used as 3rd slot for 2-of-3 consensus in testnet. Not for production — development and testing only.</div>
+      <span class="v-badge">Test · Testnet Only</span>
+    </div>
+    <div class="v-card">
+      <div class="v-card-title">Open Slot</div>
+      <div class="v-card-body">Third production validator slot open for licensed financial institutions — banks, family offices, regulated custodians. Must pass KYV (Know Your Validator) review and stake on-chain bond.</div>
+      <span class="v-badge" style="background:var(--border-light);border-color:var(--border);color:var(--text-muted)">Open · Apply</span>
+    </div>
+  </div>
+  <h2>Consensus Rules</h2>
+  <p>A verdict requires <strong>ceil(N/2) matching votes</strong> from selected validators. With 3 validators: 2-of-3 required. UNAVAILABLE votes are excluded from the tally. If consensus cannot be reached, the evaluation returns BLOCK.</p>
+  <h2>Validator Economics</h2>
+  <p>Validators earn <strong>10% of all evaluation fees</strong> automatically via the fee distribution contract. No manual claim required. Fee share scales with validation volume.</p>
+  <div class="next-prev"><button class="next-btn" onclick="show('api')"><div><span class="next-btn-lbl">Next</span>API Reference →</div></button></div>
+</div>
+
+<!-- API -->
+<div id="page-api" style="display:none">
+  <h1>API Reference</h1>
+  <p class="lead">Base URL: <code>https://verun-algorand-mvp.vercel.app</code></p>
+  <div class="hint info">✅ All endpoints are live on Algorand Testnet. No API key required for testnet access.</div>
+
+  <h2 id="ep-health">GET /api/health</h2>
+  <p>Service status and network confirmation.</p>
+  <div class="code-block">
+    <div class="code-header"><span>Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-json">{
+  "ok": true,
+  "service": "verun-algorand-mvp",
+  "network": "algorand-testnet"
+}</code></pre>
+  </div>
+
+  <h2 id="ep-validators">GET /api/validators</h2>
+  <p>List all registered validators with metadata.</p>
+  <div class="code-block">
+    <div class="code-header"><span>Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-json">{
+  "validators": [
+    {
+      "id": "val-bcp-01",
+      "name": "BCP Partners",
+      "type": "internal",
+      "status": "active",
+      "policy": "score_based"
+    },
+    {
+      "id": "val-tokenforge-02",
+      "name": "tokenforge",
+      "type": "external",
+      "status": "active",
+      "policy": "chain_api_based",
+      "api": {
+        "type": "rest",
+        "network": "testnet",
+        "docs": "https://docs.tokenforge.io"
+      }
+    },
+    {
+      "id": "val-test-03",
+      "name": "Test Validator",
+      "type": "internal",
+      "status": "test",
+      "policy": "score_based"
+    }
+  ]
+}</code></pre>
+  </div>
+
+  <h2 id="ep-evaluate">POST /api/evaluate</h2>
+  <p>Evaluate an agent. Returns 2-of-N validator consensus verdict + Algorand on-chain anchor.</p>
+  <div class="code-block">
+    <div class="code-header"><span>Request body</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-json">{
+  "agentId": "agt_demo",
+  "score": 820,
+  "operation": "transfer",
+  "validatorIds": ["val-bcp-01", "val-tokenforge-02", "val-test-03"]
+}</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-header"><span>Response 200</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-json">{
+  "success": true,
+  "verdict": {
+    "agentId": "agt_demo",
+    "score": 820,
+    "operation": "transfer",
+    "validators_used": [
+      { "id": "val-bcp-01", "name": "BCP Partners" },
+      { "id": "val-tokenforge-02", "name": "tokenforge" },
+      { "id": "val-test-03", "name": "Test Validator" }
+    ],
+    "votes": [
+      { "validatorId": "val-bcp-01", "vote": "LOW", "reason": "score_800+", "source": "val-bcp-01" },
+      { "validatorId": "val-tokenforge-02", "vote": "LOW", "reason": "chain_api_gate_passed_transfer:820>=500", "gate": { "permitted": true } },
+      { "validatorId": "val-test-03", "vote": "LOW", "reason": "score_800+", "source": "val-test-03" }
+    ],
+    "tally": { "LOW": 3 },
+    "consensus": "LOW",
+    "permitted": true,
+    "kickback_rate": 10,
+    "ts": "2026-04-20T09:33:09.734Z"
+  },
+  "anchor": {
+    "txid": "KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA",
+    "round": "62604931",
+    "explorer": "https://testnet.algoexplorer.io/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA"
+  }
+}</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-header"><span>curl example</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-bash">curl -X POST https://verun-algorand-mvp.vercel.app/api/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{"agentId":"agt_demo","score":820,"operation":"transfer"}'</code></pre>
+  </div>
+
+  <h2 id="ep-score">POST /api/score</h2>
+  <p>Lightweight evaluation — verdict only, no Algorand anchor written. Use for quick checks where on-chain anchoring is not required.</p>
+  <div class="code-block">
+    <div class="code-header"><span>Request body</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-json">{
+  "agentId": "agt_demo",
+  "score": 820,
+  "operation": "transfer"
+}</code></pre>
+  </div>
+  <div class="next-prev"><button class="next-btn" onclick="show('anchor')"><div><span class="next-btn-lbl">Next</span>Algorand Anchor →</div></button></div>
+</div>
+
+<!-- ANCHOR -->
+<div id="page-anchor" style="display:none">
+  <h1>Algorand On-Chain Anchor</h1>
+  <p class="lead">Every <code>POST /api/evaluate</code> writes the verdict payload as a Note Transaction on Algorand Testnet — creating an immutable, timestamped audit trail.</p>
+  <h2>How It Works</h2>
+  <p>After validator consensus is reached, the Verun protocol wallet sends a <strong>self-payment transaction of 1,000 microALGO</strong> with the verdict JSON encoded in the <code>note</code> field (max 1KB). The transaction is confirmed in ~3.9 seconds on Algorand.</p>
+  <div class="hint success">✅ <strong>Non-blocking design:</strong> If the anchor fails (e.g. wallet unfunded), the verdict is still returned. The anchor failure is reported as <code>anchor.status: "anchor_failed"</code> — the evaluation result is never withheld.</div>
+  <h2>Anchor Payload (note field)</h2>
+  <div class="code-block">
+    <div class="code-header"><span>Note field JSON (on-chain)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-json">{
+  "agentId": "agt_demo",
+  "score": 820,
+  "operation": "transfer",
+  "consensus": "LOW",
+  "permitted": true,
+  "validators": ["val-bcp-01", "val-tokenforge-02", "val-test-03"],
+  "ts": "2026-04-20T09:33:09.734Z"
+}</code></pre>
+  </div>
+  <h2>Verify On-Chain</h2>
+  <p>Every anchor can be verified publicly on Algoexplorer:</p>
+  <div class="code-block">
+    <div class="code-header"><span>Explorer URL pattern</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-bash">https://testnet.algoexplorer.io/tx/{txid}
+
+# Example live anchor:
+https://testnet.algoexplorer.io/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA</code></pre>
+  </div>
+  <h2>Protocol Wallet</h2>
+  <table class="doc-table">
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td class="td-name">Network</td><td>Algorand Testnet</td></tr>
+      <tr><td class="td-name">Node</td><td>Algonode public (testnet-api.algonode.cloud)</td></tr>
+      <tr><td class="td-name">Cost per anchor</td><td>1,000 microALGO (~0.001 ALGO)</td></tr>
+      <tr><td class="td-name">Confirmation time</td><td>~3.9 seconds</td></tr>
+    </tbody>
+  </table>
+  <div class="next-prev"><button class="next-btn" onclick="show('sbt')"><div><span class="next-btn-lbl">Next</span>Soulbound Token →</div></button></div>
+</div>
+
+<!-- SBT -->
+<div id="page-sbt" style="display:none">
+  <h1>Soulbound Token (SBT)</h1>
+  <p class="lead">Each verified agent receives an Algorand Standard Asset (ASA) as a non-transferable trust token — its digital credential for regulated operations.</p>
+  <div class="hint note">🔮 <strong>Status:</strong> SBT design is finalized. Implementation in progress — <code>POST /api/mint-sbt</code> endpoint coming in the next release.</div>
+  <h2>Design Spec</h2>
+  <table class="doc-table">
+    <thead><tr><th>ASA Parameter</th><th>Value</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td class="td-name">defaultFrozen</td><td>true</td><td>Token is non-transferable by default</td></tr>
+      <tr><td class="td-name">freeze</td><td>""</td><td>No one can freeze/unfreeze — immutable</td></tr>
+      <tr><td class="td-name">clawback</td><td>VERUN_ADDR</td><td>Verun can revoke on bad behaviour</td></tr>
+      <tr><td class="td-name">total</td><td>1</td><td>Unique per agent</td></tr>
+      <tr><td class="td-name">decimals</td><td>0</td><td>Non-fungible</td></tr>
+      <tr><td class="td-name">note</td><td>JSON: agentId, score, tier, ts</td><td>Human-readable credential</td></tr>
+    </tbody>
+  </table>
+  <h2>Planned Endpoint</h2>
+  <div class="code-block">
+    <div class="code-header"><span>POST /api/mint-sbt (coming soon)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-json">// Request
+{ "agentId": "agt_demo", "score": 820 }
+
+// Response
+{
+  "assetId": 123456789,
+  "txid": "ALGO_TX_HASH...",
+  "explorer": "https://testnet.algoexplorer.io/asset/123456789"
+}</code></pre>
+  </div>
+  <div class="next-prev"><button class="next-btn" onclick="show('roadmap')"><div><span class="next-btn-lbl">Next</span>Mainnet Roadmap →</div></button></div>
+</div>
+
+<!-- ROADMAP -->
+<div id="page-roadmap" style="display:none">
+  <h1>Mainnet Roadmap</h1>
+  <p class="lead">From Algorand Testnet MVP to MiCA-compliant production infrastructure.</p>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot-outer active">✓</div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-period active">April 2026 — LIVE</div>
+        <div class="tl-title">Algorand Testnet MVP</div>
+        <div class="tl-desc">4 API endpoints live. BCP Partners + tokenforge validators. 2-of-N consensus. On-chain anchor via Note Transactions. Non-blocking design.</div>
+        <div class="tl-chips">
+          <span class="chip">/evaluate</span>
+          <span class="chip">/validators</span>
+          <span class="chip">/score</span>
+          <span class="chip">/health</span>
+          <span class="chip">Algorand anchor</span>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot-outer">2</div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-period">Q2 2026</div>
+        <div class="tl-title">SBT + tokenforge Production Integration</div>
+        <div class="tl-desc">Soulbound Token minting via /api/mint-sbt. tokenforge Chain API production access. Rate limiting + Bearer token auth on all endpoints.</div>
+        <div class="tl-chips">
+          <span class="chip">SBT mint</span>
+          <span class="chip">tokenforge prod</span>
+          <span class="chip">API auth</span>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot-outer">3</div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-period">Q3 2026</div>
+        <div class="tl-title">Algorand Mainnet + MiCA Audit</div>
+        <div class="tl-desc">Migration from testnet to mainnet. Third production validator onboarded. Full MiCA legal audit + compliance documentation. Algorand Foundation grant milestone delivery.</div>
+        <div class="tl-chips">
+          <span class="chip">Mainnet</span>
+          <span class="chip">MiCA audit</span>
+          <span class="chip">3rd validator</span>
+          <span class="chip">Grant M3</span>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot-outer">4</div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-body">
+        <div class="tl-period">Q4 2026+</div>
+        <div class="tl-title">Open Validator Network</div>
+        <div class="tl-desc">Validator onboarding open to licensed EU financial institutions. KYV (Know Your Validator) process. Fee distribution fully automated. Stellar EURC settlement live.</div>
+        <div class="tl-chips">
+          <span class="chip">Open validators</span>
+          <span class="chip">Stellar EURC</span>
+          <span class="chip">KYV process</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #content -->
+
+<!-- TOC (right sidebar) -->
+<div id="toc">
+  <div class="toc-sticky" id="toc-content"></div>
+</div>
+</div><!-- end #main -->
+
+<div id="footer">
+  <span class="footer-txt">© 2026 <a href="https://www.bcpp.io" target="_blank">BCP Partners GmbH</a> · All rights reserved</span>
+  <span class="footer-txt">
+    <a href="https://github.com/rafaschul/verun-algorand-mvp" target="_blank">GitHub</a>
+    · <a href="https://verun-algorand-mvp.vercel.app" target="_blank">Live Demo</a>
+    · <a href="mailto:rafael@bcpp.io">Contact</a>
+    · <a href="https://www.bcpp.io" target="_blank">Impressum</a>
+  </span>
+</div>
+
+<script>
+// Page switching
+const pages = ['welcome','overview','architecture','trust-gates','mica','validators','api','anchor','sbt','roadmap'];
+function show(id) {
+  pages.forEach(p => {
+    const el = document.getElementById('page-' + p);
+    if (el) el.style.display = (p === id) ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.remove('active');
+    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + id + "'")) {
+      item.classList.add('active');
+    }
+  });
+  window.scrollTo(0, 0);
+  buildToc();
+}
+
+function scrollToEl(id) {
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+}
+
+// Dark/light theme
+let dark = true;
+function toggleTheme() {
+  dark = !dark;
+  document.body.classList.toggle('dark', dark);
+  document.getElementById('theme-icon').textContent = dark ? '☀️' : '🌙';
+  document.getElementById('theme-lbl').textContent = dark ? 'Light' : 'Dark';
+  document.getElementById('hljs-theme').href = dark
+    ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
+    : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+}
+
+// Sidebar mobile
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// Copy code
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code');
+  navigator.clipboard.writeText(code.innerText);
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 1500);
+}
+
+// Build TOC
+function buildToc() {
+  const visible = document.querySelector('#content > div:not([style*="display:none"])');
+  const toc = document.getElementById('toc-content');
+  if (!visible || !toc) return;
+  const headings = visible.querySelectorAll('h2');
+  if (headings.length === 0) { toc.innerHTML = ''; return; }
+  let html = '<div class="toc-label">On this page</div>';
+  headings.forEach(h => {
+    const anchor = h.id || h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    if (!h.id) h.id = anchor;
+    html += `<a class="toc-item" href="#${anchor}">${h.textContent}</a>`;
+  });
+  toc.innerHTML = html;
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  // Set dark theme stylesheet
+  document.getElementById('hljs-theme').href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
+  hljs.highlightAll();
+  buildToc();
+});
+</script>
+</body>
+</html>
