@@ -499,6 +499,8 @@ body.dark .live-badge{background:rgba(22,163,74,0.12);color:#4ade80;border-color
   <h1>API Reference</h1>
   <p class="lead">Base URL: <code>https://verun-algorand-mvp.vercel.app</code></p>
   <div class="hint info">✅ All endpoints are live on Algorand Testnet. No API key required for testnet access.</div>
+  <div class="hint note">📋 <strong>Last verified:</strong> 27 April 2026 — all endpoints returning <code>200 OK</code>. Confirmed: <code>GET /api/health</code>, <code>GET /api/validators</code>, <code>POST /api/score</code>, <code>POST /api/evaluate</code> (with on-chain anchor), and <code>POST /api/mint-sbt</code> (live SBT asset <code>759213121</code>).</div>
+  <div class="hint note">⚠️ <strong>Testing POST endpoints:</strong> Opening a POST endpoint URL directly in a browser returns <code>405 Method Not Allowed</code> — that's expected, not an error. To test, <strong>copy the <code>curl</code> command</strong> from the example block below each POST endpoint and run it in your terminal.</div>
 
   <h2 id="ep-health">GET /api/health</h2>
   <p>Service status and network confirmation.</p>
@@ -630,14 +632,24 @@ body.dark .live-badge{background:rgba(22,163,74,0.12);color:#4ade80;border-color
 }</code></pre>
   </div>
   <h2>Verify On-Chain</h2>
-  <p>Every anchor can be verified publicly on Algoexplorer:</p>
+  <p>Every anchor can be verified publicly on any Algorand testnet explorer. AlgoExplorer is the primary link returned in API responses; Pera Explorer and Allo are reliable fallbacks if a specific explorer is offline or rate-limited.</p>
   <div class="code-block">
-    <div class="code-header"><span>Explorer URL pattern</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-    <pre><code class="language-bash">https://testnet.algoexplorer.io/tx/{txid}
+    <div class="code-header"><span>Explorer URL patterns (with fallbacks)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-bash"># Primary
+https://testnet.algoexplorer.io/tx/{txid}
 
-# Example live anchor:
-https://testnet.algoexplorer.io/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA</code></pre>
+# Fallback — Pera Explorer
+https://testnet.explorer.perawallet.app/tx/{txid}/
+
+# Fallback — Allo
+https://allo.info/tx/{txid}
+
+# Example live anchor (txid from POST /api/evaluate):
+https://testnet.algoexplorer.io/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA
+https://testnet.explorer.perawallet.app/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA/
+https://allo.info/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA</code></pre>
   </div>
+  <div class="hint note">🔗 <strong>Click-through links:</strong> Open the example anchor on <a href="https://testnet.algoexplorer.io/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA" target="_blank">AlgoExplorer</a> · <a href="https://testnet.explorer.perawallet.app/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA/" target="_blank">Pera Explorer</a> · <a href="https://allo.info/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUEXPE6BZA" target="_blank">Allo</a>.</div>
   <h2>Protocol Wallet</h2>
   <table class="doc-table">
     <thead><tr><th>Property</th><th>Value</th></tr></thead>
@@ -655,7 +667,7 @@ https://testnet.algoexplorer.io/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUE
 <div id="page-sbt" style="display:none">
   <h1>Soulbound Token (SBT)</h1>
   <p class="lead">Each verified agent receives an Algorand Standard Asset (ASA) as a non-transferable trust token — its digital credential for regulated operations.</p>
-  <div class="hint note">🔮 <strong>Status:</strong> SBT design is finalized. Implementation in progress — <code>POST /api/mint-sbt</code> endpoint coming in the next release.</div>
+  <div class="hint success">✅ <strong>Status:</strong> SBT minting is <strong>live on Algorand Testnet</strong>. <code>POST /api/mint-sbt</code> is operational — the first reference SBT was minted as <strong>asset <code>759213121</code></strong> (txid <code>GZSDQU5MBVY...</code>). Verify on <a href="https://testnet.algoexplorer.io/asset/759213121" target="_blank">AlgoExplorer</a> · <a href="https://testnet.explorer.perawallet.app/asset/759213121/" target="_blank">Pera</a> · <a href="https://allo.info/asset/759213121" target="_blank">Allo</a>.</div>
   <h2>Design Spec</h2>
   <table class="doc-table">
     <thead><tr><th>ASA Parameter</th><th>Value</th><th>Why</th></tr></thead>
@@ -668,18 +680,24 @@ https://testnet.algoexplorer.io/tx/KBGSXMRXSM6P75RB6XHYT3RY6JNK7IGY6KIXWGXTVLRUE
       <tr><td class="td-name">note</td><td>JSON: agentId, score, tier, ts</td><td>Human-readable credential</td></tr>
     </tbody>
   </table>
-  <h2>Planned Endpoint</h2>
+  <h2>Endpoint</h2>
   <div class="code-block">
-    <div class="code-header"><span>POST /api/mint-sbt (coming soon)</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="code-header"><span>POST /api/mint-sbt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
     <pre><code class="language-json">// Request
 { "agentId": "agt_demo", "score": 820 }
 
-// Response
+// Response (live testnet example)
 {
-  "assetId": 123456789,
-  "txid": "ALGO_TX_HASH...",
-  "explorer": "https://testnet.algoexplorer.io/asset/123456789"
+  "assetId": 759213121,
+  "txid": "GZSDQU5MBVY...",
+  "explorer": "https://testnet.algoexplorer.io/asset/759213121"
 }</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-header"><span>curl example — copy and run in terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><code class="language-bash">curl -X POST https://verun-algorand-mvp.vercel.app/api/mint-sbt \
+  -H "Content-Type: application/json" \
+  -d '{"agentId":"agt_demo","score":820}'</code></pre>
   </div>
   <div class="next-prev"><button class="next-btn" onclick="show('roadmap')"><div><span class="next-btn-lbl">Next</span>Mainnet Roadmap →</div></button></div>
 </div>
