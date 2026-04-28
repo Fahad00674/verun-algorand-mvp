@@ -803,8 +803,9 @@ code { font-family: var(--mono); font-size: 0.9em; }
   background: rgba(10,10,15,0.6);
 }
 .v-tcard-namerow {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 4px;
 }
 .v-tcard-name {
@@ -813,11 +814,25 @@ code { font-family: var(--mono); font-size: 0.9em; }
 }
 .v-tcard-linkedin {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
   color: var(--text-3);
-  transition: color 0.2s;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s, transform 0.2s var(--easing);
   flex-shrink: 0;
 }
-.v-tcard-linkedin:hover { color: var(--violet-bright); }
+.v-tcard-linkedin:hover {
+  color: var(--violet-bright);
+  background: var(--violet-soft);
+  transform: translateY(-1px);
+}
+.v-tcard-linkedin:focus-visible {
+  outline: none;
+  color: var(--violet-bright);
+  box-shadow: 0 0 0 2px var(--violet-bright);
+}
 .v-tcard-role { font-size: 13px; color: var(--text-2); margin-bottom: 16px; }
 .v-tcard-badges { display: flex; gap: 6px; flex-wrap: wrap; }
 .v-tcard-badge {

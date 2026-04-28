@@ -2034,26 +2034,31 @@ function Team() {
       tag: "SIGNATORY",
       tagColor: C.lime,
       badges: ["Deutsche Bank · EVO Payments", "U.S. Bank · Elavon", "DASH DAO"],
+      linkedin: "https://www.linkedin.com/in/rafaelschultz/",
     },
     {
       name: "Robert Pietzka",
       role: "Partner — Regulation & ETF",
       badges: ["J.P. Morgan", "CACEIS"],
+      linkedin: "https://www.linkedin.com/in/robert-pietzka/",
     },
     {
       name: "Christoph Iwaniez",
       role: "Advisor — Banking & Fintech",
       badges: ["Forge Europe", "Nuri", "Bitwala"],
+      linkedin: "https://www.linkedin.com/in/christoph-iwaniez/",
     },
     {
       name: "Jan Hodok",
       role: "Partner — Strategy & PR",
       badges: ["British American Tobacco", "Belendorf AG"],
+      linkedin: "https://www.linkedin.com/in/jan-hodok-b436591/",
     },
     {
       name: "Carina Couillard",
       role: "Marketing — DeFi",
       badges: ["UNICX Network", "HANDL Pay"],
+      linkedin: "https://www.linkedin.com/in/carina-couillard/",
     },
     {
       name: "Fahad Farooq",
@@ -2061,6 +2066,7 @@ function Team() {
       tag: "TECHNICAL CONTACT",
       tagColor: C.violet,
       badges: ["BCP Labs"],
+      linkedin: "https://www.linkedin.com/in/fahadfaroooq/",
     },
   ];
   return (
@@ -2097,7 +2103,7 @@ function Team() {
                 <div className="v-tcard-name">{p.name}</div>
                 <a
                   className="v-tcard-linkedin"
-                  href="https://www.linkedin.com/company/bcp-partners-gmbh/"
+                  href={p.linkedin}
                   target="_blank"
                   rel="noopener"
                   aria-label={`${p.name} on LinkedIn`}
