@@ -288,8 +288,8 @@ function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.85 }}
         >
-          Make your AI agent <strong>regulatory-ready</strong>. Plug into
-          Europe&rsquo;s regulated finance rails.
+          Make your AI agent <strong>regulatory-ready</strong>. Designed to
+          plug into Europe&rsquo;s regulated finance rails.
         </motion.p>
 
         <TrustSignals />
@@ -631,16 +631,6 @@ function SignatureMark() {
  * LIVE TICKER — top of hero, animated counters
  * ──────────────────────────────────────────────────────────── */
 function LiveTicker() {
-  const [evals, setEvals] = useState(1247);
-  const [lastAnchor, setLastAnchor] = useState(2);
-  useEffect(() => {
-    const a = setInterval(() => setEvals((v) => v + Math.floor(Math.random() * 3)), 2500);
-    const b = setInterval(() => setLastAnchor((v) => (v >= 8 ? 1 : v + 1)), 1100);
-    return () => {
-      clearInterval(a);
-      clearInterval(b);
-    };
-  }, []);
   return (
     <motion.div
       className="v-ticker"
@@ -650,18 +640,20 @@ function LiveTicker() {
     >
       <div className="v-ticker-item">
         <span className="v-ticker-dot" />
-        <span className="v-ticker-key">EVALS</span>
-        <span className="v-ticker-val">{evals.toLocaleString()}</span>
+        <span className="v-ticker-key">5 LIVE ENDPOINTS</span>
       </div>
       <span className="v-ticker-sep">·</span>
       <div className="v-ticker-item">
-        <span className="v-ticker-key">LAST ANCHOR</span>
-        <span className="v-ticker-val">{lastAnchor}s ago</span>
+        <span className="v-ticker-key">ASSET</span>
+        <span className="v-ticker-val">759213121</span>
       </div>
       <span className="v-ticker-sep">·</span>
       <div className="v-ticker-item">
-        <span className="v-ticker-key">VALIDATORS</span>
-        <span className="v-ticker-val">3 / 3 online</span>
+        <span className="v-ticker-key">2-OF-3 CONSENSUS</span>
+      </div>
+      <span className="v-ticker-sep">·</span>
+      <div className="v-ticker-item">
+        <span className="v-ticker-key">Q3 2026 MAINNET</span>
       </div>
     </motion.div>
   );
@@ -1749,9 +1741,8 @@ function ValidatorNetwork() {
       name: "tokenforge",
       tag: "Founding Validator",
       tagColor: C.lime,
-      stat: "920",
       desc:
-        "White-label Security Token platform (TokenSuite). eWpG-compliant, BaFin-relevant, MiFID II-ready. Cashlink-registered crypto securities registrar. Chain API gates programmatic agent access.",
+        "White-label Security Token platform (TokenSuite). eWpG-compliant, BaFin-relevant, MiFID II-ready. Integrates with Cashlink (regulated crypto securities registrar). Chain API gates programmatic agent access.",
       tags: ["eWpG", "BaFin", "MiFID II", "Cashlink", "ERC-1400"],
     },
     {
@@ -1768,7 +1759,7 @@ function ValidatorNetwork() {
       tagColor: C.lime,
       tagAction: () => setValidatorModalOpen(true),
       desc:
-        "Institutional validator slot open for European banks, custodians, and regulated compliance partners. Extends the 2-of-3 consensus to institutional scale. Currently filled by an internal Test Validator on testnet — replaced by an institutional partner on Algorand mainnet (Q3 2026, grant Milestone 3).",
+        "Open slot reserved for an institutional validator on Algorand mainnet (Q3 2026, grant Milestone 3). Targeting EU banks, custodians, and regulated compliance partners.",
       tags: ["Banks", "Custodians", "Institutional"],
     },
   ];
@@ -1960,7 +1951,7 @@ function Compliance() {
       <div className="v-container">
         <SectionHead
           eyebrow="EU REGULATORY ANCHORS"
-          title={<>Built around the <span className="v-grad">agentic regulatory stack.</span></>}
+          title={<>Designed around the <span className="v-grad">agentic regulatory stack.</span></>}
           sub="Verun is not a crypto-asset. The SBT is a non-tradeable credential. Primary regulatory anchors below."
         />
         <motion.div
