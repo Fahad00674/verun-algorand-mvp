@@ -20,6 +20,7 @@ import {
 } from "framer-motion";
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   createContext,
@@ -709,6 +710,435 @@ function LinkedinIcon() {
   );
 }
 
+function CloseIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+ * MODAL — generic dialog with backdrop, focus trap, ESC close
+ * ──────────────────────────────────────────────────────────── */
+function Modal({
+  isOpen,
+  onClose,
+  title,
+  subtitle,
+  children,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+}) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  const titleId = useId();
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (e.key === "Tab" && panelRef.current) {
+        const focusables = panelRef.current.querySelectorAll<HTMLElement>(
+          'input:not([disabled]), textarea:not([disabled]), select:not([disabled]), button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const focusTimer = setTimeout(() => {
+      const firstField = panelRef.current?.querySelector<HTMLElement>(
+        "input, textarea, select"
+      );
+      firstField?.focus();
+    }, 80);
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+      clearTimeout(focusTimer);
+    };
+  }, [isOpen]);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="v-modal-backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={onClose}
+          role="presentation"
+        >
+          <motion.div
+            ref={panelRef}
+            className="v-modal"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+          >
+            <button
+              type="button"
+              className="v-modal-close"
+              onClick={onClose}
+              aria-label="Close dialog"
+            >
+              <CloseIcon />
+            </button>
+            <h2 id={titleId} className="v-modal-title">
+              {title}
+            </h2>
+            {subtitle && <p className="v-modal-sub">{subtitle}</p>}
+            {children}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function Toast({ show, children }: { show: boolean; children: ReactNode }) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="v-modal-toast"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2 }}
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+const VERUN_INBOX = "fahad@bcpp.io";
+
+function ContactModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [company, setCompany] = useState("");
+  const [message, setMessage] = useState("");
+  const [toast, setToast] = useState(false);
+
+  const reset = () => {
+    setName("");
+    setEmail("");
+    setCompany("");
+    setMessage("");
+  };
+
+  const handleClose = () => {
+    onClose();
+    reset();
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const subject = `Verun Inquiry - ${name}`;
+    const body = [
+      `Name: ${name}`,
+      `Email: ${email}`,
+      company ? `Company: ${company}` : null,
+      "",
+      "Message:",
+      message,
+    ]
+      .filter((l): l is string => l !== null)
+      .join("\n");
+
+    setToast(true);
+    setTimeout(() => {
+      window.location.href = `mailto:${VERUN_INBOX}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+    }, 120);
+    setTimeout(() => {
+      setToast(false);
+      handleClose();
+    }, 1500);
+  };
+
+  return (
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        title="Get in touch"
+        subtitle="Tell us about your interest in Verun. We respond within two business days."
+      >
+        <form className="v-modal-form" onSubmit={handleSubmit}>
+          <label className="v-modal-field">
+            <span>
+              Name <em>*</em>
+            </span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              autoComplete="name"
+            />
+          </label>
+          <label className="v-modal-field">
+            <span>
+              Email <em>*</em>
+            </span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </label>
+          <label className="v-modal-field">
+            <span>Company / Organization</span>
+            <input
+              type="text"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              autoComplete="organization"
+            />
+          </label>
+          <label className="v-modal-field">
+            <span>
+              Message <em>*</em>
+            </span>
+            <textarea
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              required
+            />
+          </label>
+          <button type="submit" className="v-modal-submit">
+            Send via Email
+          </button>
+          <button
+            type="button"
+            className="v-modal-cancel"
+            onClick={handleClose}
+          >
+            Cancel
+          </button>
+        </form>
+      </Modal>
+      <Toast show={toast}>Opening your email client...</Toast>
+    </>
+  );
+}
+
+function ValidatorInquiryModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const [institution, setInstitution] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [email, setEmail] = useState("");
+  const [type, setType] = useState("Bank");
+  const [country, setCountry] = useState("");
+  const [message, setMessage] = useState("");
+  const [toast, setToast] = useState(false);
+
+  const reset = () => {
+    setInstitution("");
+    setContactName("");
+    setEmail("");
+    setType("Bank");
+    setCountry("");
+    setMessage("");
+  };
+
+  const handleClose = () => {
+    onClose();
+    reset();
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const subject = `Verun Validator Slot Inquiry - ${institution}`;
+    const body = [
+      `Institution: ${institution}`,
+      `Contact Name: ${contactName}`,
+      `Email: ${email}`,
+      `Institution Type: ${type}`,
+      `Country: ${country}`,
+      "",
+      "Message:",
+      message,
+    ].join("\n");
+
+    setToast(true);
+    setTimeout(() => {
+      window.location.href = `mailto:${VERUN_INBOX}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+    }, 120);
+    setTimeout(() => {
+      setToast(false);
+      handleClose();
+    }, 1500);
+  };
+
+  return (
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        title="Validator slot inquiry"
+        subtitle="Open to European banks, custodians, asset managers, and regulated compliance partners."
+      >
+        <form className="v-modal-form" onSubmit={handleSubmit}>
+          <label className="v-modal-field">
+            <span>
+              Institution Name <em>*</em>
+            </span>
+            <input
+              type="text"
+              value={institution}
+              onChange={(e) => setInstitution(e.target.value)}
+              required
+              autoComplete="organization"
+            />
+          </label>
+          <label className="v-modal-field">
+            <span>
+              Contact Name <em>*</em>
+            </span>
+            <input
+              type="text"
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
+              required
+              autoComplete="name"
+            />
+          </label>
+          <label className="v-modal-field">
+            <span>
+              Email <em>*</em>
+            </span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+            />
+          </label>
+          <label className="v-modal-field">
+            <span>
+              Institution Type <em>*</em>
+            </span>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              required
+            >
+              <option>Bank</option>
+              <option>Custodian</option>
+              <option>Compliance Partner</option>
+              <option>Asset Manager</option>
+              <option>Other</option>
+            </select>
+          </label>
+          <label className="v-modal-field">
+            <span>
+              Country <em>*</em>
+            </span>
+            <input
+              type="text"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              required
+              autoComplete="country-name"
+            />
+          </label>
+          <label className="v-modal-field">
+            <span>
+              Message <em>*</em>
+            </span>
+            <textarea
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              required
+              placeholder="Tell us about your institution and validator interest..."
+            />
+          </label>
+          <button type="submit" className="v-modal-submit">
+            Send via Email
+          </button>
+          <button
+            type="button"
+            className="v-modal-cancel"
+            onClick={handleClose}
+          >
+            Cancel
+          </button>
+        </form>
+      </Modal>
+      <Toast show={toast}>Opening your email client...</Toast>
+    </>
+  );
+}
+
 /* ────────────────────────────────────────────────────────────
  * TRUST SIGNALS — three-card row immediately under the hero
  * ──────────────────────────────────────────────────────────── */
@@ -1199,11 +1629,13 @@ function Dot({ c }: { c: string }) {
  * VALIDATOR NETWORK — three validators, 2-of-3 consensus
  * ──────────────────────────────────────────────────────────── */
 function ValidatorNetwork() {
+  const [validatorModalOpen, setValidatorModalOpen] = useState(false);
+
   const validators: Array<{
     name: string;
     tag: string;
     tagColor: string;
-    tagHref?: string;
+    tagAction?: () => void;
     stat?: string;
     desc: string;
     tags: string[];
@@ -1229,8 +1661,7 @@ function ValidatorNetwork() {
       name: "Open Slot",
       tag: "Apply →",
       tagColor: C.lime,
-      tagHref:
-        "mailto:fahad@bcpp.io?subject=Verun%20Validator%20Slot%20Inquiry&body=Hello%20Verun%20team%2C%0A%0AWe%27re%20interested%20in%20joining%20as%20an%20institutional%20validator%3A",
+      tagAction: () => setValidatorModalOpen(true),
       desc:
         "Institutional validator slot open for European banks, custodians, and regulated compliance partners. Extends the 2-of-3 consensus to institutional scale. Currently filled by an internal Test Validator on testnet — replaced by an institutional partner on Algorand mainnet (Q3 2026, grant Milestone 3).",
       tags: ["Banks", "Custodians", "Institutional"],
@@ -1271,14 +1702,15 @@ function ValidatorNetwork() {
               whileHover={{ y: -4, transition: { duration: 0.25 } }}
             >
               <div className="v-vcard-head">
-                {v.tagHref ? (
-                  <a
-                    href={v.tagHref}
+                {v.tagAction ? (
+                  <button
+                    type="button"
+                    onClick={v.tagAction}
                     className="v-vcard-tag v-vcard-tag-link"
                     style={{ color: v.tagColor, borderColor: v.tagColor + "55" }}
                   >
                     {v.tag}
-                  </a>
+                  </button>
                 ) : (
                   <span
                     className="v-vcard-tag"
@@ -1306,6 +1738,10 @@ function ValidatorNetwork() {
           ))}
         </motion.div>
       </div>
+      <ValidatorInquiryModal
+        isOpen={validatorModalOpen}
+        onClose={() => setValidatorModalOpen(false)}
+      />
     </section>
   );
 }
@@ -1584,6 +2020,8 @@ function Team() {
  * CTA + FOOTER
  * ──────────────────────────────────────────────────────────── */
 function CTAFooter() {
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const openContact = () => setContactModalOpen(true);
   return (
     <>
       <section className="v-cta">
@@ -1635,12 +2073,13 @@ function CTAFooter() {
               </a>
             </Magnetic>
             <Magnetic>
-              <a
-                href="mailto:fahad@bcpp.io?subject=Verun%20Inquiry&body=Hello%20Verun%20team%2C%0A%0AI%27d%20like%20to%20discuss%3A"
+              <button
+                type="button"
+                onClick={openContact}
                 className="v-btn v-btn-ghost"
               >
                 Contact
-              </a>
+              </button>
             </Magnetic>
           </motion.div>
         </div>
@@ -1673,12 +2112,18 @@ function CTAFooter() {
             </div>
             <div className="v-footer-col">
               <div className="v-footer-h">CONTACT</div>
-              <a href="mailto:fahad@bcpp.io?subject=Verun%20Inquiry&body=Hello%20Verun%20team%2C%0A%0AI%27d%20like%20to%20discuss%3A">Contact</a>
+              <button type="button" className="v-footer-contact" onClick={openContact}>
+                Contact
+              </button>
               <a href="https://bcpp.io" target="_blank" rel="noopener">bcpp.io</a>
             </div>
           </div>
         </div>
       </footer>
+      <ContactModal
+        isOpen={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
+      />
     </>
   );
 }

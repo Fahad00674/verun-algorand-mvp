@@ -1105,3 +1105,202 @@ code { font-family: var(--mono); font-size: 0.9em; }
   .v-vnet { grid-template-columns: 1fr; gap: 16px; }
   .v-vcard { padding: 26px; }
 }
+
+/* ──────────────────────────────────────────────────────────
+   VALIDATOR / FOOTER button overrides — keep visual parity
+   with the anchors they replace
+   ────────────────────────────────────────────────────────── */
+button.v-vcard-tag {
+  font-family: inherit;
+  font-size: 10.5px;
+  cursor: pointer;
+  background: transparent;
+}
+.v-footer-contact {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s;
+}
+.v-footer-contact:hover { color: var(--violet-bright); }
+
+/* ──────────────────────────────────────────────────────────
+   MODAL — backdrop + panel + form
+   ────────────────────────────────────────────────────────── */
+.v-modal-backdrop {
+  position: fixed; inset: 0;
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+.v-modal {
+  position: relative;
+  width: 100%; max-width: 520px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow:
+    0 30px 80px -20px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(255,255,255,0.02) inset;
+}
+.v-modal-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 8px;
+  display: inline-flex;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+.v-modal-close:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.v-modal-close:focus-visible {
+  outline: none;
+  color: var(--text);
+  box-shadow: 0 0 0 2px var(--violet-bright);
+}
+.v-modal-title {
+  font-size: 22px; font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin: 0 32px 8px 0;
+  line-height: 1.25;
+}
+.v-modal-sub {
+  font-size: 13.5px;
+  color: var(--text-2);
+  margin: 0 0 24px;
+  line-height: 1.6;
+}
+.v-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.v-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.v-modal-field span {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-2);
+  letter-spacing: 0.02em;
+}
+.v-modal-field em {
+  color: var(--rose);
+  font-style: normal;
+  margin-left: 2px;
+}
+.v-modal-field input,
+.v-modal-field textarea,
+.v-modal-field select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.45;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.v-modal-field textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+.v-modal-field select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1l5 5 5-5' stroke='%23B6B0C2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+.v-modal-field input:focus,
+.v-modal-field textarea:focus,
+.v-modal-field select:focus {
+  border-color: var(--violet-bright);
+  box-shadow: 0 0 0 3px rgba(196,165,255,0.15);
+}
+.v-modal-field input::placeholder,
+.v-modal-field textarea::placeholder {
+  color: var(--text-3);
+}
+
+.v-modal-submit {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  background: var(--violet-bright);
+  color: #ffffff;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s var(--easing), box-shadow 0.2s ease, background 0.2s ease;
+}
+.v-modal-submit:hover {
+  transform: scale(1.02);
+  background: var(--violet-bright);
+  box-shadow: 0 12px 32px var(--violet-glow), 0 0 0 1px var(--violet-bright);
+}
+.v-modal-submit:active { transform: scale(0.99); }
+.v-modal-submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(196,165,255,0.35);
+}
+
+.v-modal-cancel {
+  align-self: center;
+  background: none;
+  border: none;
+  color: var(--text-3);
+  font-family: var(--sans);
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 6px 10px;
+  margin-top: 2px;
+  transition: color 0.2s;
+}
+.v-modal-cancel:hover { color: var(--text); }
+
+.v-modal-toast {
+  position: fixed;
+  top: 28px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--sans);
+  padding: 12px 22px;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+
+@media (max-width: 560px) {
+  .v-modal { padding: 24px 22px; border-radius: 14px; }
+  .v-modal-title { font-size: 19px; }
+}
