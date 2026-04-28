@@ -1461,37 +1461,16 @@ function SectionHead({
 }
 
 /* ────────────────────────────────────────────────────────────
- * MODES — large interactive cards
+ * MODES — interactive laptop-frame demo (Discovery · Supervised · Autonomous)
  * ──────────────────────────────────────────────────────────── */
+type ModeTabId = "discovery" | "supervised" | "autonomous";
+
 function Modes() {
-  const modes = [
-    {
-      step: "01",
-      title: "Discovery",
-      subtitle: "Agent scans, finds, recommends.",
-      copy:
-        "Agent discovers tokenforge via the Bazaar registry and prepares a recommendation with full provenance.",
-      accent: C.violet,
-      icon: <DiscoveryIcon />,
-    },
-    {
-      step: "02",
-      title: "Supervised",
-      subtitle: "Human reviews, approves with a click.",
-      copy:
-        "Operator receives the recommendation with full evaluation trail. One signed approval moves it forward.",
-      accent: C.lime,
-      icon: <SupervisedIcon />,
-    },
-    {
-      step: "03",
-      title: "Autonomous",
-      subtitle: "Agent executes end-to-end.",
-      copy:
-        "After human green-light, the agent runs autonomously within its score envelope. Every action anchored on Algorand.",
-      accent: C.rose,
-      icon: <AutonomousIcon />,
-    },
+  const [activeTab, setActiveTab] = useState<ModeTabId>("discovery");
+  const tabs: Array<{ id: ModeTabId; label: string }> = [
+    { id: "discovery", label: "Discovery" },
+    { id: "supervised", label: "Supervised" },
+    { id: "autonomous", label: "Autonomous" },
   ];
 
   return (
@@ -1499,43 +1478,47 @@ function Modes() {
       <div className="v-container">
         <SectionHead
           eyebrow="OPERATING MODES"
-          title={
-            <>
-              Discovery <ArrowSep /> Supervised <ArrowSep /> Autonomous
-            </>
-          }
-          sub="A progressive trust ladder. Score gates determine which mode the agent qualifies for."
+          title={<>Three modes. <span className="v-grad">One protocol.</span></>}
+          sub="From discovery to full autonomy — every step gated, anchored, and revocable."
         />
 
         <motion.div
-          className="v-modes"
-          initial="hidden"
-          whileInView="visible"
+          className="v-laptop"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-10%" }}
-          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          {modes.map((m) => (
-            <motion.article
-              key={m.title}
-              className="v-mode"
-              variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
-              }}
-              whileHover={{ y: -8, transition: { duration: 0.3 } }}
-              style={{ "--mode-accent": m.accent } as React.CSSProperties}
-            >
-              <div className="v-mode-step">{m.step}</div>
-              <div className="v-mode-icon" style={{ color: m.accent }}>
-                {m.icon}
+          <div className="v-laptop-bezel">
+            <span className="v-laptop-notch" aria-hidden />
+            <div className="v-laptop-screen">
+              <div className="v-laptop-tabs" role="tablist" aria-label="Operating modes">
+                {tabs.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === t.id}
+                    onClick={() => setActiveTab(t.id)}
+                    className={`v-tab${activeTab === t.id ? " v-tab-active" : ""}`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
               </div>
-              <h3 className="v-mode-title">{m.title}</h3>
-              <div className="v-mode-sub">{m.subtitle}</div>
-              <p className="v-mode-copy">{m.copy}</p>
-              <div className="v-mode-line" style={{ background: m.accent }} />
-            </motion.article>
-          ))}
+              <div className="v-laptop-content">
+                <AnimatePresence mode="wait">
+                  {activeTab === "discovery" && <DiscoveryDemo key="discovery" />}
+                  {activeTab === "supervised" && <SupervisedDemo key="supervised" />}
+                  {activeTab === "autonomous" && <AutonomousDemo key="autonomous" />}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+          <div className="v-laptop-base" aria-hidden />
         </motion.div>
+
+        <CurlBlock activeTab={activeTab} />
 
         <motion.div
           className="v-modes-gates"
@@ -1545,7 +1528,7 @@ function Modes() {
           transition={{ duration: 0.6, delay: 0.15 }}
         >
           <div className="v-modes-gates-label">
-            tokenforge Chain API · operation thresholds
+            Operation thresholds enforced at the tokenforge Chain API.
           </div>
           <div className="v-modes-gates-row">
             <span className="v-modes-gate" style={{ borderColor: C.orange + "55" }}>
@@ -1571,32 +1554,331 @@ function Modes() {
   );
 }
 
-function ArrowSep() {
-  return <span className="v-arrow-sep">→</span>;
+function DiscoveryDemo() {
+  const platforms = [
+    { name: "tokenforge", monogram: "T", score: 820, recommended: true, color: C.violet },
+    { name: "MetaTrust", monogram: "M", score: 740, color: C.lime },
+    { name: "AgentVault", monogram: "A", score: 650, color: C.violetBright },
+    { name: "RegPort", monogram: "R", score: 580, color: C.rose },
+    { name: "CryptoCustody", monogram: "C", score: 690, color: C.lime },
+    { name: "EUDexx", monogram: "E", score: 410, color: C.orange },
+  ];
+
+  const [cycleKey, setCycleKey] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setCycleKey((k) => k + 1), 7000);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <motion.div
+      className="v-demo v-demo-discovery"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="v-demo-status">
+        <span className="v-demo-status-dot" /> scanning validated platforms…
+      </div>
+
+      <div className="v-discovery-board" key={cycleKey}>
+        <div className="v-radar" aria-hidden>
+          <span className="v-radar-pulse" />
+          <span className="v-radar-pulse" style={{ animationDelay: "1.3s" }} />
+        </div>
+
+        {platforms.map((p, i) => (
+          <motion.div
+            key={p.name}
+            className={`v-tile${p.recommended ? " v-tile-rec" : ""}`}
+            initial={{ opacity: 0.35, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.4 + i * 0.45, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <span
+              className="v-tile-mono"
+              style={{ background: `${p.color}26`, color: p.color }}
+            >
+              {p.monogram}
+            </span>
+            <span className="v-tile-name">{p.name}</span>
+            <motion.span
+              className="v-tile-score"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.65 + i * 0.45 }}
+            >
+              {p.score}
+            </motion.span>
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        className="v-discovery-footer"
+        key={`f-${cycleKey}`}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 3.6 }}
+      >
+        → Recommended: <strong>tokenforge</strong> · score 820
+      </motion.div>
+    </motion.div>
+  );
 }
 
-function DiscoveryIcon() {
+function SupervisedDemo() {
+  const [state, setState] = useState<"idle" | "approved" | "declined">("idle");
+
+  useEffect(() => {
+    if (state === "approved") {
+      const t = setTimeout(() => setState("idle"), 3000);
+      return () => clearTimeout(t);
+    }
+    if (state === "declined") {
+      const t = setTimeout(() => setState("idle"), 700);
+      return () => clearTimeout(t);
+    }
+  }, [state]);
+
   return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <circle cx="14" cy="14" r="9" stroke="currentColor" strokeWidth="1.8" />
-      <path d="m20.5 20.5 5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <circle cx="14" cy="14" r="3" fill="currentColor" />
-    </svg>
+    <motion.div
+      className="v-demo v-demo-supervised"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <AnimatePresence mode="wait">
+        {state === "approved" ? (
+          <motion.div
+            key="success"
+            className="v-rec-success"
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="v-rec-success-icon">
+              <CheckIcon />
+            </div>
+            <div className="v-rec-success-text">
+              Approved · anchored on Algorand · <code>KBGS...6BZA</code>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="card"
+            className="v-rec-card"
+            initial={{ opacity: 0, x: 32 }}
+            animate={
+              state === "declined"
+                ? { opacity: 1, x: [0, -10, 10, -8, 8, 0] }
+                : { opacity: 1, x: 0 }
+            }
+            exit={{ opacity: 0, x: -32 }}
+            transition={{
+              duration: state === "declined" ? 0.5 : 0.4,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            <div className="v-rec-title">
+              Agent <code>agt_demo</code> · Score 820
+            </div>
+            <div className="v-rec-body">
+              Wants to <strong>transfer 5,000 EURC</strong> to tokenforge
+            </div>
+            <div className="v-rec-chips">
+              <span className="v-rec-chip">Validators 3/3 ✓</span>
+              <span className="v-rec-chip">EU AI Act ✓</span>
+              <span className="v-rec-chip">Operation: transfer</span>
+            </div>
+            <div className="v-rec-actions">
+              <button
+                type="button"
+                className="v-rec-decline"
+                onClick={() => setState("declined")}
+              >
+                Decline
+              </button>
+              <motion.button
+                type="button"
+                className="v-rec-approve"
+                onClick={() => setState("approved")}
+                animate={{
+                  boxShadow: [
+                    "0 0 0 0 rgba(159,109,255,0)",
+                    "0 0 0 8px rgba(159,109,255,0.28)",
+                    "0 0 0 0 rgba(159,109,255,0)",
+                  ],
+                }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                Approve <Arrow />
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
-function SupervisedIcon() {
+
+type TerminalRow = {
+  uid: number;
+  time: string;
+  agent: string;
+  score: number;
+  op: string;
+  status: "ok" | "blocked";
+  tx: string | null;
+};
+
+function AutonomousDemo() {
+  const samples = [
+    { time: "09:33:09", agent: "agt_demo", score: 820, op: "transfer", status: "ok" as const, tx: "KBGS...6BZA" },
+    { time: "09:33:14", agent: "agt_xyz_2", score: 760, op: "mint", status: "ok" as const, tx: "LMNO...4ZX1" },
+    { time: "09:33:18", agent: "agt_abc_5", score: 240, op: "transfer", status: "blocked" as const, tx: null },
+    { time: "09:33:22", agent: "agt_q_7", score: 910, op: "order", status: "ok" as const, tx: "PQRS...M8N3" },
+    { time: "09:33:25", agent: "agt_demo", score: 820, op: "read", status: "ok" as const, tx: "TUVW...0Y2K" },
+  ];
+
+  const [rows, setRows] = useState<TerminalRow[]>(() =>
+    samples.slice(0, 4).map((r, i) => ({ ...r, uid: i }))
+  );
+  const idRef = useRef(4);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setRows((prev) => {
+        const next: TerminalRow[] = [
+          ...prev,
+          { ...samples[idRef.current % samples.length], uid: idRef.current },
+        ];
+        idRef.current++;
+        return next.length > 5 ? next.slice(next.length - 5) : next;
+      });
+    }, 1700);
+    return () => clearInterval(t);
+  }, []);
+
   return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <path d="M16 4 6 9v6c0 6 4 11 10 13 6-2 10-7 10-13V9l-10-5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-      <path d="m11 15 4 4 7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <motion.div
+      className="v-demo v-demo-autonomous"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="v-term-header">
+        <span className="v-term-dot" />
+        verun · live evaluations · testnet
+      </div>
+
+      <div className="v-term-body">
+        <AnimatePresence initial={false}>
+          {rows.map((r) => (
+            <motion.div
+              key={r.uid}
+              layout
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -14 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className={`v-term-row ${r.status === "ok" ? "v-term-ok" : "v-term-blocked"}`}
+            >
+              <span className="v-term-time">{r.time}</span>
+              <span className="v-term-agent">{r.agent}</span>
+              <span className="v-term-score">score {r.score}</span>
+              <span className="v-term-op">{r.op}</span>
+              <span className="v-term-status">
+                {r.status === "ok" ? "✓ permitted" : "✗ BLOCKED (below 500)"}
+              </span>
+              <span className="v-term-tx">{r.tx ? `→ ${r.tx}` : ""}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      <div className="v-term-footer">100% on-chain anchored · 2-of-3 validator consensus</div>
+    </motion.div>
   );
 }
-function AutonomousIcon() {
+
+function CurlBlock({ activeTab }: { activeTab: ModeTabId }) {
+  const examples: Record<ModeTabId, { label: string; code: string }> = {
+    discovery: {
+      label: "DISCOVERY · GET request",
+      code: "curl https://verun-algorand-mvp.vercel.app/api/validators",
+    },
+    supervised: {
+      label: "SUPERVISED · POST evaluate",
+      code:
+        "curl -X POST https://verun-algorand-mvp.vercel.app/api/evaluate \\\n" +
+        "  -H \"Content-Type: application/json\" \\\n" +
+        "  -d '{\n" +
+        "    \"agentId\": \"agt_demo\",\n" +
+        "    \"score\": 820,\n" +
+        "    \"operation\": \"transfer\"\n" +
+        "  }'",
+    },
+    autonomous: {
+      label: "AUTONOMOUS · evaluate loop",
+      code:
+        "# pseudo-code\n" +
+        "for agent in agent_pool:\n" +
+        "  res = POST /api/evaluate { agentId, score, operation }\n" +
+        "  if res.permitted and res.consensus == \"2-of-3\":\n" +
+        "    execute(agent.action)        # anchored on Algorand",
+    },
+  };
+
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(examples[activeTab].code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard unsupported */
+    }
+  };
+
   return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <path d="M14 4 6 18h7l-1 10 10-14h-7l1-10Z" fill="currentColor" />
-    </svg>
+    <div className="v-curl">
+      <div className="v-curl-head">
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={activeTab}
+            className="v-curl-label"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.2 }}
+          >
+            {examples[activeTab].label}
+          </motion.span>
+        </AnimatePresence>
+        <button type="button" className="v-curl-copy" onClick={handleCopy}>
+          {copied ? "Copied" : "Copy"}
+        </button>
+      </div>
+      <div className="v-curl-codewrap">
+        <AnimatePresence mode="wait">
+          <motion.pre
+            key={activeTab}
+            className="v-curl-code"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+          >
+            <code>{examples[activeTab].code}</code>
+          </motion.pre>
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
 
