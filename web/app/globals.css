@@ -873,6 +873,43 @@ code { font-family: var(--mono); font-size: 0.9em; }
 }
 .v-cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
+.v-disclaimer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 32px 0;
+}
+.v-disclaimer-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.v-disclaimer-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--orange);
+  opacity: 0.85;
+}
+.v-disclaimer p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-3);
+  margin: 0;
+}
+.v-disclaimer strong {
+  color: var(--text-2);
+  font-weight: 600;
+}
+@media (max-width: 560px) {
+  .v-disclaimer { padding: 24px 0; }
+  .v-disclaimer-inner { padding: 0 20px; gap: 12px; }
+  .v-disclaimer p { font-size: 13.5px; }
+}
+
 .v-footer {
   background: var(--bg);
   border-top: 1px solid var(--border);

@@ -720,6 +720,26 @@ function CloseIcon() {
   );
 }
 
+function InfoIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="9.5" />
+      <path d="M12 11v5" />
+      <circle cx="12" cy="8" r="0.6" fill="currentColor" />
+    </svg>
+  );
+}
+
 /* ────────────────────────────────────────────────────────────
  * MODAL — generic dialog with backdrop, focus trap, ESC close
  * ──────────────────────────────────────────────────────────── */
@@ -2186,6 +2206,17 @@ function CTAFooter() {
           </motion.div>
         </div>
       </section>
+
+      <aside className="v-disclaimer" role="note" aria-label="Legal and beta notice">
+        <div className="v-disclaimer-inner">
+          <span className="v-disclaimer-icon" aria-hidden>
+            <InfoIcon />
+          </span>
+          <p>
+            <strong>Beta · Testnet preview.</strong> The Verun Protocol is currently deployed on Algorand testnet for demonstration purposes. Features, on-chain parameters, design, and integrations may change before mainnet release (Q3 2026, post grant Milestone 3). Nothing on this site constitutes financial, legal, or investment advice.
+          </p>
+        </div>
+      </aside>
 
       <footer className="v-footer">
         <div className="v-container v-footer-inner">
