@@ -148,7 +148,7 @@ function Nav() {
       </a>
       <div className="v-nav-links">
         <a href="#modes">Modes</a>
-        <a href="#architecture">Architecture</a>
+        <a href="#validators">Validators</a>
         <a href="#compliance">Compliance</a>
         <a href="#team">Team</a>
         <a href="https://verun-algorand-mvp.vercel.app/docs.html" target="_blank" rel="noopener">Docs</a>
@@ -2212,21 +2212,22 @@ function CTAFooter() {
             <div className="v-footer-col">
               <div className="v-footer-h">PROTOCOL</div>
               <a href="#modes">Modes</a>
-              <a href="#architecture">Architecture</a>
+              <a href="#validators">Validators</a>
               <a href="#compliance">Compliance</a>
+              <a href="https://verun-algorand-mvp.vercel.app/docs.html" target="_blank" rel="noopener">Docs</a>
             </div>
             <div className="v-footer-col">
               <div className="v-footer-h">RESOURCES</div>
               <a href="https://verun-algorand-mvp.vercel.app/docs.html" target="_blank" rel="noopener">Docs</a>
               <a href="https://github.com/Fahad00674/verun-algorand-mvp" target="_blank" rel="noopener">GitHub</a>
-              <a href="https://verun-stellar-demo.vercel.app" target="_blank" rel="noopener">Stellar Demo</a>
+              <a href="#sbt">Soulbound Token</a>
             </div>
             <div className="v-footer-col">
               <div className="v-footer-h">CONTACT</div>
               <button type="button" className="v-footer-contact" onClick={openContact}>
                 Contact
               </button>
-              <a href="https://bcpp.io" target="_blank" rel="noopener">bcpp.io</a>
+              <a href="https://www.bcpp.io" target="_blank" rel="noopener">bcpp.io</a>
             </div>
           </div>
         </div>
