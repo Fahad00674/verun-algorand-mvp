@@ -21,6 +21,7 @@ import {
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   createContext,
@@ -740,6 +741,20 @@ function InfoIcon() {
   );
 }
 
+function CursorIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M3 2.5 L3 17 L7.5 13.2 L10.7 21 L13.5 19.8 L10.3 12.3 L17 12 Z"
+        fill="#ffffff"
+        stroke="rgba(0,0,0,0.55)"
+        strokeWidth="1"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /* ────────────────────────────────────────────────────────────
  * MODAL — generic dialog with backdrop, focus trap, ESC close
  * ──────────────────────────────────────────────────────────── */
@@ -1274,7 +1289,7 @@ function TrustSignals() {
         <>
           Non-transferable credential, on-chain. Asset{" "}
           <a
-            href="https://testnet.algoexplorer.io/asset/759213121"
+            href="https://lora.algokit.io/testnet/asset/759213121"
             target="_blank"
             rel="noopener"
           >
@@ -1630,8 +1645,63 @@ function DiscoveryDemo() {
 
 function SupervisedDemo() {
   const [state, setState] = useState<"idle" | "approved" | "declined">("idle");
+  const [userTouched, setUserTouched] = useState(false);
+  const [validatorPhase, setValidatorPhase] = useState(0);
+  const [cursorActive, setCursorActive] = useState(false);
+  const [cursorAt, setCursorAt] = useState<"home" | "approve">("home");
+  const [pulseClick, setPulseClick] = useState(false);
+
+  const demoRef = useRef<HTMLDivElement>(null);
+  const approveBtnRef = useRef<HTMLButtonElement>(null);
+  const [coords, setCoords] = useState({
+    home: { x: 320, y: 280 },
+    approve: { x: 280, y: 220 },
+  });
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      if (!demoRef.current) return;
+      const demoRect = demoRef.current.getBoundingClientRect();
+      const home = {
+        x: demoRect.width * 0.78 - 12,
+        y: demoRect.height * 0.86 - 12,
+      };
+      let approve = {
+        x: demoRect.width * 0.62 - 12,
+        y: demoRect.height * 0.62 - 12,
+      };
+      if (approveBtnRef.current) {
+        const btn = approveBtnRef.current.getBoundingClientRect();
+        approve = {
+          x: btn.left - demoRect.left + btn.width * 0.7 - 4,
+          y: btn.top - demoRect.top + btn.height * 0.5 - 4,
+        };
+      }
+      setCoords({ home, approve });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [state]);
 
   useEffect(() => {
+    if (state !== "idle") {
+      setValidatorPhase(3);
+      return;
+    }
+    setValidatorPhase(0);
+    const t1 = setTimeout(() => setValidatorPhase(1), 400);
+    const t2 = setTimeout(() => setValidatorPhase(2), 600);
+    const t3 = setTimeout(() => setValidatorPhase(3), 800);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [state]);
+
+  useEffect(() => {
+    if (!userTouched) return;
     if (state === "approved") {
       const t = setTimeout(() => setState("idle"), 3000);
       return () => clearTimeout(t);
@@ -1640,100 +1710,233 @@ function SupervisedDemo() {
       const t = setTimeout(() => setState("idle"), 700);
       return () => clearTimeout(t);
     }
-  }, [state]);
+  }, [state, userTouched]);
+
+  useEffect(() => {
+    if (userTouched) return;
+    let cancelled = false;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const sched = (ms: number, fn: () => void) => {
+      const t = setTimeout(() => {
+        if (!cancelled) fn();
+      }, ms);
+      timers.push(t);
+    };
+
+    const run = () => {
+      if (cancelled) return;
+      setState("idle");
+      setCursorActive(false);
+      setCursorAt("home");
+      setPulseClick(false);
+
+      sched(1500, () => setCursorActive(true));
+      sched(1750, () => setCursorAt("approve"));
+      sched(2950, () => setPulseClick(true));
+      sched(3150, () => {
+        setState("approved");
+        setPulseClick(false);
+      });
+      sched(7150, () => setCursorActive(false));
+      sched(7600, () => setState("idle"));
+      sched(9600, run);
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
+  }, [userTouched]);
+
+  const handleApprove = () => {
+    setUserTouched(true);
+    setCursorActive(false);
+    setPulseClick(false);
+    setState("approved");
+  };
+  const handleDecline = () => {
+    setUserTouched(true);
+    setCursorActive(false);
+    setPulseClick(false);
+    setState("declined");
+  };
+
+  const validators = [
+    { id: "BCP", label: "BCP" },
+    { id: "tokenforge", label: "tokenforge" },
+    { id: "Test", label: "Test" },
+  ];
 
   return (
     <motion.div
+      ref={demoRef}
       className="v-demo v-demo-supervised"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <AnimatePresence mode="wait">
-        {state === "approved" ? (
-          <motion.div
-            key="success"
-            className="v-rec-success"
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      <div className="v-sup-validators">
+        {validators.map((v, i) => (
+          <span
+            key={v.id}
+            className={`v-sup-vchip${validatorPhase > i ? " v-sup-vchip-on" : ""}`}
           >
-            <div className="v-rec-success-icon">
-              <CheckIcon />
-            </div>
-            <div className="v-rec-success-text">
-              <div className="v-rec-success-line">
-                ✓ Approved · anchored on Algorand
+            <span className="v-sup-vlabel">{v.label}</span>
+            <motion.span
+              className="v-sup-vcheck"
+              initial={false}
+              animate={
+                validatorPhase > i
+                  ? { scale: 1, opacity: 1 }
+                  : { scale: 0, opacity: 0 }
+              }
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            >
+              ✓
+            </motion.span>
+          </span>
+        ))}
+      </div>
+      <motion.div
+        className="v-sup-consensus"
+        initial={false}
+        animate={{ opacity: validatorPhase >= 3 ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        2-of-3 consensus reached
+      </motion.div>
+
+      <div className="v-sup-card-wrap">
+        <AnimatePresence mode="wait">
+          {state === "approved" ? (
+            <motion.div
+              key="success"
+              className="v-rec-success"
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="v-rec-success-icon">
+                <CheckIcon />
               </div>
-              <div className="v-rec-success-line v-rec-success-sbt">
-                Soulbound credential issued · Asset{" "}
-                <a
-                  href="https://testnet.algoexplorer.io/asset/759213121"
-                  target="_blank"
-                  rel="noopener"
-                  className="v-rec-success-asset"
+              <div className="v-rec-success-text">
+                <div className="v-rec-success-line">
+                  ✓ Approved · anchored on Algorand
+                </div>
+                <div className="v-rec-success-line v-rec-success-sbt">
+                  Soulbound credential issued · Asset{" "}
+                  <a
+                    href="https://lora.algokit.io/testnet/asset/759213121"
+                    target="_blank"
+                    rel="noopener"
+                    className="v-rec-success-asset"
+                  >
+                    759213121
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="card"
+              className="v-rec-card"
+              initial={{ opacity: 0, x: 32 }}
+              animate={
+                state === "declined"
+                  ? { opacity: 1, x: [0, -10, 10, -8, 8, 0] }
+                  : { opacity: 1, x: 0 }
+              }
+              exit={{ opacity: 0, x: -32 }}
+              transition={{
+                duration: state === "declined" ? 0.5 : 0.4,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <div className="v-rec-title">
+                Agent <code>agt_demo</code> · Score 820
+              </div>
+              <div className="v-rec-body">
+                Wants to <strong>transfer 5,000 EURC</strong> to tokenforge
+              </div>
+              <div className="v-rec-chips">
+                <span className="v-rec-chip">Validators 3/3 ✓</span>
+                <span className="v-rec-chip">EU AI Act ✓</span>
+                <span className="v-rec-chip">Operation: transfer</span>
+              </div>
+              <div className="v-rec-actions">
+                <button
+                  type="button"
+                  className="v-rec-decline"
+                  onClick={handleDecline}
                 >
-                  759213121
-                </a>
+                  Decline
+                </button>
+                <motion.button
+                  ref={approveBtnRef}
+                  type="button"
+                  className="v-rec-approve"
+                  onClick={handleApprove}
+                  animate={{
+                    scale: pulseClick ? [1, 0.96, 1] : 1,
+                    boxShadow: [
+                      "0 0 0 0 rgba(159,109,255,0)",
+                      "0 0 0 8px rgba(159,109,255,0.28)",
+                      "0 0 0 0 rgba(159,109,255,0)",
+                    ],
+                  }}
+                  transition={{
+                    scale: { duration: 0.22, ease: [0.4, 0, 0.6, 1] },
+                    boxShadow: { duration: 2.2, repeat: Infinity, ease: "easeInOut" },
+                  }}
+                >
+                  Approve <Arrow />
+                </motion.button>
               </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="card"
-            className="v-rec-card"
-            initial={{ opacity: 0, x: 32 }}
-            animate={
-              state === "declined"
-                ? { opacity: 1, x: [0, -10, 10, -8, 8, 0] }
-                : { opacity: 1, x: 0 }
-            }
-            exit={{ opacity: 0, x: -32 }}
-            transition={{
-              duration: state === "declined" ? 0.5 : 0.4,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-          >
-            <div className="v-rec-title">
-              Agent <code>agt_demo</code> · Score 820
-            </div>
-            <div className="v-rec-body">
-              Wants to <strong>transfer 5,000 EURC</strong> to tokenforge
-            </div>
-            <div className="v-rec-chips">
-              <span className="v-rec-chip">Validators 3/3 ✓</span>
-              <span className="v-rec-chip">EU AI Act ✓</span>
-              <span className="v-rec-chip">Operation: transfer</span>
-            </div>
-            <div className="v-rec-actions">
-              <button
-                type="button"
-                className="v-rec-decline"
-                onClick={() => setState("declined")}
-              >
-                Decline
-              </button>
-              <motion.button
-                type="button"
-                className="v-rec-approve"
-                onClick={() => setState("approved")}
-                animate={{
-                  boxShadow: [
-                    "0 0 0 0 rgba(159,109,255,0)",
-                    "0 0 0 8px rgba(159,109,255,0.28)",
-                    "0 0 0 0 rgba(159,109,255,0)",
-                  ],
-                }}
-                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                Approve <Arrow />
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="v-sup-steps">
+        <div className="v-sup-step v-sup-step-done">1. Agent scored ✓</div>
+        <div
+          className={`v-sup-step ${
+            validatorPhase >= 3 ? "v-sup-step-done" : "v-sup-step-active"
+          }`}
+        >
+          {validatorPhase >= 3 ? "2. Validators voted ✓" : "2. Validators voting…"}
+        </div>
+        <div
+          className={`v-sup-step ${
+            state === "approved" ? "v-sup-step-done" : "v-sup-step-active"
+          }`}
+        >
+          {state === "approved"
+            ? "3. Approved · credential issued ✓"
+            : "3. Awaiting human approval"}
+        </div>
+      </div>
+
+      <motion.div
+        className="v-cursor"
+        initial={false}
+        animate={{
+          opacity: cursorActive ? 1 : 0,
+          x: cursorActive ? coords[cursorAt].x : coords.home.x,
+          y: cursorActive ? coords[cursorAt].y : coords.home.y,
+        }}
+        transition={{
+          opacity: { duration: 0.4 },
+          x: { duration: 1.2, ease: [0.22, 1, 0.36, 1] },
+          y: { duration: 1.2, ease: [0.22, 1, 0.36, 1] },
+        }}
+        aria-hidden
+      >
+        <CursorIcon />
+      </motion.div>
     </motion.div>
   );
 }
@@ -2163,7 +2366,7 @@ function ValidatorNetwork() {
 function LiveSBT() {
   const ASSET = "759213121";
   const explorers = [
-    { name: "AlgoExplorer", url: `https://testnet.algoexplorer.io/asset/${ASSET}` },
+    { name: "Lora", url: `https://lora.algokit.io/testnet/asset/${ASSET}` },
     { name: "Pera", url: `https://explorer.perawallet.app/assets/${ASSET}/?network=testnet` },
     { name: "Allo", url: `https://allo.info/asset/${ASSET}` },
   ];
@@ -2478,12 +2681,12 @@ function CTAFooter() {
           >
             <Magnetic>
               <a
-                href="https://testnet.algoexplorer.io/asset/759213121"
+                href="https://lora.algokit.io/testnet/asset/759213121"
                 className="v-btn v-btn-primary"
                 target="_blank"
                 rel="noopener"
               >
-                Verify on AlgoExplorer <Arrow />
+                Verify on Lora <Arrow />
               </a>
             </Magnetic>
             <Magnetic>
@@ -2544,7 +2747,7 @@ function CTAFooter() {
               <div className="v-footer-h">RESOURCES</div>
               <a href="https://verun-algorand-mvp.vercel.app/docs.html" target="_blank" rel="noopener">Docs</a>
               <a href="https://github.com/Fahad00674/verun-algorand-mvp" target="_blank" rel="noopener">GitHub</a>
-              <a href="https://testnet.algoexplorer.io/asset/759213121" target="_blank" rel="noopener">Soulbound Token</a>
+              <a href="https://lora.algokit.io/testnet/asset/759213121" target="_blank" rel="noopener">Soulbound Token</a>
             </div>
             <div className="v-footer-col">
               <div className="v-footer-h">CONTACT</div>
