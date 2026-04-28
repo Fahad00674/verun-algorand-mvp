@@ -1478,8 +1478,8 @@ function Modes() {
       <div className="v-container">
         <SectionHead
           eyebrow="OPERATING MODES"
-          title={<>Three modes. <span className="v-grad">One protocol.</span></>}
-          sub="From discovery to full autonomy — every step gated, anchored, and revocable."
+          title={<>How agents <span className="v-grad">use Verun.</span></>}
+          sub="Three steps: agents find a platform, get human approval, then run autonomously."
         />
 
         <motion.div
@@ -1555,18 +1555,9 @@ function Modes() {
 }
 
 function DiscoveryDemo() {
-  const platforms = [
-    { name: "tokenforge", monogram: "T", score: 820, recommended: true, color: C.violet },
-    { name: "MetaTrust", monogram: "M", score: 740, color: C.lime },
-    { name: "AgentVault", monogram: "A", score: 650, color: C.violetBright },
-    { name: "RegPort", monogram: "R", score: 580, color: C.rose },
-    { name: "CryptoCustody", monogram: "C", score: 690, color: C.lime },
-    { name: "EUDexx", monogram: "E", score: 410, color: C.orange },
-  ];
-
   const [cycleKey, setCycleKey] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setCycleKey((k) => k + 1), 7000);
+    const t = setInterval(() => setCycleKey((k) => k + 1), 6000);
     return () => clearInterval(t);
   }, []);
 
@@ -1579,40 +1570,49 @@ function DiscoveryDemo() {
       transition={{ duration: 0.3 }}
     >
       <div className="v-demo-status">
-        <span className="v-demo-status-dot" /> scanning validated platforms…
+        <span className="v-demo-status-dot" /> scanning agent registry…
       </div>
 
-      <div className="v-discovery-board" key={cycleKey}>
+      <div className="v-discovery-stage" key={cycleKey}>
         <div className="v-radar" aria-hidden>
           <span className="v-radar-pulse" />
           <span className="v-radar-pulse" style={{ animationDelay: "1.3s" }} />
         </div>
 
-        {platforms.map((p, i) => (
-          <motion.div
-            key={p.name}
-            className={`v-tile${p.recommended ? " v-tile-rec" : ""}`}
-            initial={{ opacity: 0.35, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.4 + i * 0.45, ease: [0.22, 1, 0.36, 1] }}
+        <motion.div
+          className="v-tile v-tile-rec v-tile-solo"
+          initial={{ opacity: 0, x: -32 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <span
+            className="v-tile-mono"
+            style={{ background: `${C.violet}26`, color: C.violet }}
           >
-            <span
-              className="v-tile-mono"
-              style={{ background: `${p.color}26`, color: p.color }}
-            >
-              {p.monogram}
-            </span>
-            <span className="v-tile-name">{p.name}</span>
+            T
+          </span>
+          <div className="v-tile-body">
+            <span className="v-tile-name">tokenforge</span>
             <motion.span
               className="v-tile-score"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.65 + i * 0.45 }}
+              transition={{ duration: 0.5, delay: 1.9 }}
             >
-              {p.score}
+              820
             </motion.span>
-          </motion.div>
-        ))}
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="v-discovery-meta"
+          key={`m-${cycleKey}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 2.4 }}
+        >
+          1 verified platform available
+        </motion.div>
       </div>
 
       <motion.div
@@ -1620,7 +1620,7 @@ function DiscoveryDemo() {
         key={`f-${cycleKey}`}
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 3.6 }}
+        transition={{ duration: 0.5, delay: 3.0 }}
       >
         → Recommended: <strong>tokenforge</strong> · score 820
       </motion.div>
@@ -1664,7 +1664,20 @@ function SupervisedDemo() {
               <CheckIcon />
             </div>
             <div className="v-rec-success-text">
-              Approved · anchored on Algorand · <code>KBGS...6BZA</code>
+              <div className="v-rec-success-line">
+                ✓ Approved · anchored on Algorand
+              </div>
+              <div className="v-rec-success-line v-rec-success-sbt">
+                Soulbound credential issued · Asset{" "}
+                <a
+                  href="https://testnet.algoexplorer.io/asset/759213121"
+                  target="_blank"
+                  rel="noopener"
+                  className="v-rec-success-asset"
+                >
+                  759213121
+                </a>
+              </div>
             </div>
           </motion.div>
         ) : (
@@ -1809,11 +1822,11 @@ function AutonomousDemo() {
 function CurlBlock({ activeTab }: { activeTab: ModeTabId }) {
   const examples: Record<ModeTabId, { label: string; code: string }> = {
     discovery: {
-      label: "DISCOVERY · GET request",
+      label: "DISCOVERY · See available platforms",
       code: "curl https://verun-algorand-mvp.vercel.app/api/validators",
     },
     supervised: {
-      label: "SUPERVISED · POST evaluate",
+      label: "SUPERVISED · Evaluate one agent",
       code:
         "curl -X POST https://verun-algorand-mvp.vercel.app/api/evaluate \\\n" +
         "  -H \"Content-Type: application/json\" \\\n" +
@@ -1824,7 +1837,7 @@ function CurlBlock({ activeTab }: { activeTab: ModeTabId }) {
         "  }'",
     },
     autonomous: {
-      label: "AUTONOMOUS · evaluate loop",
+      label: "AUTONOMOUS · Continuous evaluations",
       code:
         "# pseudo-code\n" +
         "for agent in agent_pool:\n" +
@@ -2531,7 +2544,7 @@ function CTAFooter() {
               <div className="v-footer-h">RESOURCES</div>
               <a href="https://verun-algorand-mvp.vercel.app/docs.html" target="_blank" rel="noopener">Docs</a>
               <a href="https://github.com/Fahad00674/verun-algorand-mvp" target="_blank" rel="noopener">GitHub</a>
-              <a href="#sbt">Soulbound Token</a>
+              <a href="https://testnet.algoexplorer.io/asset/759213121" target="_blank" rel="noopener">Soulbound Token</a>
             </div>
             <div className="v-footer-col">
               <div className="v-footer-h">CONTACT</div>
@@ -2560,7 +2573,6 @@ export default function Page() {
       <main className="v-root">
         <Nav />
         <Hero />
-        <LiveSBT />
         <Modes />
         <ValidatorNetwork />
         <Compliance />
