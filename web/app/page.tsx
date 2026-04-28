@@ -150,7 +150,7 @@ function Nav() {
         <a href="#architecture">Architecture</a>
         <a href="#compliance">Compliance</a>
         <a href="#team">Team</a>
-        <a href="/docs.html">Docs</a>
+        <a href="https://verun-algorand-mvp.vercel.app/docs.html" target="_blank" rel="noopener">Docs</a>
       </div>
       <LiveBadge />
     </motion.nav>
@@ -225,6 +225,15 @@ function Hero() {
       <LiveTicker />
 
       <div className="v-hero-inner v-container">
+        <motion.p
+          className="v-problem"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+        >
+          AI agents are about to transact billions. Today, they can&rsquo;t legally touch regulated EU finance.
+        </motion.p>
+
         <motion.div
           className="v-eyebrow"
           initial={{ opacity: 0, y: 12 }}
@@ -323,7 +332,12 @@ function Hero() {
           transition={{ duration: 0.6, delay: 2.8 }}
         >
           <Magnetic>
-            <a href="/docs.html" className="v-btn v-btn-primary">
+            <a
+              href="https://verun-algorand-mvp.vercel.app/docs.html"
+              className="v-btn v-btn-primary"
+              target="_blank"
+              rel="noopener"
+            >
               Read the Docs <Arrow />
             </a>
           </Magnetic>
@@ -334,7 +348,7 @@ function Hero() {
               target="_blank"
               rel="noopener"
             >
-              GitHub <ExternalIcon />
+              View on GitHub <ExternalIcon />
             </a>
           </Magnetic>
         </motion.div>
@@ -684,6 +698,17 @@ function ExternalIcon() {
   );
 }
 
+function LinkedinIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.37V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 /* ────────────────────────────────────────────────────────────
  * TRUST SIGNALS — three-card row immediately under the hero
  * ──────────────────────────────────────────────────────────── */
@@ -692,20 +717,15 @@ function TrustSignals() {
     {
       icon: <ShieldCheckIcon />,
       title: "Agent Protection",
-      desc: (
-        <>
-          Score-gated access. No agent transacts without crossing the trust
-          threshold.
-        </>
-      ),
-      href: "/docs.html#gates",
+      desc: <>Only verified agents transact. No exceptions.</>,
+      href: "https://verun-algorand-mvp.vercel.app/docs.html#api",
     },
     {
       icon: <BadgeCheckIcon />,
       title: "Trust Credential",
       desc: (
         <>
-          Soulbound token issued on Algorand. Live: Asset{" "}
+          Non-transferable credential, on-chain. Asset{" "}
           <a
             href="https://testnet.algoexplorer.io/asset/759213121"
             target="_blank"
@@ -716,18 +736,13 @@ function TrustSignals() {
           .
         </>
       ),
-      href: "/docs.html#sbt",
+      href: "https://verun-algorand-mvp.vercel.app/docs.html#sbt",
     },
     {
       icon: <ClockIcon />,
       title: "Live Audit Trail",
-      desc: (
-        <>
-          Every verdict anchored on Algorand in ~3.9 seconds. Public +
-          permanent.
-        </>
-      ),
-      href: "/docs.html#anchor",
+      desc: <>Every decision permanently anchored on-chain.</>,
+      href: "https://verun-algorand-mvp.vercel.app/docs.html#anchor",
     },
   ];
 
@@ -744,6 +759,8 @@ function TrustSignals() {
           <motion.a
             key={it.title}
             href={it.href}
+            target="_blank"
+            rel="noopener"
             className="v-trust-card"
             variants={{
               hidden: { opacity: 0, y: 24 },
@@ -906,7 +923,7 @@ function Modes() {
       title: "Discovery",
       subtitle: "Agent scans, finds, recommends.",
       copy:
-        "Agent discovers tokenforge through the Bazaar registry, evaluates listed assets, and prepares a structured recommendation with provenance.",
+        "Agent discovers tokenforge via the Bazaar registry and prepares a recommendation with full provenance.",
       accent: C.violet,
       icon: <DiscoveryIcon />,
     },
@@ -915,7 +932,7 @@ function Modes() {
       title: "Supervised",
       subtitle: "Human reviews, approves with a click.",
       copy:
-        "Operator gets the recommendation with full evaluation trail. One signed approval moves it forward — no blind delegation, full audit trail.",
+        "Operator receives the recommendation with full evaluation trail. One signed approval moves it forward.",
       accent: C.lime,
       icon: <SupervisedIcon />,
     },
@@ -924,7 +941,7 @@ function Modes() {
       title: "Autonomous",
       subtitle: "Agent executes end-to-end.",
       copy:
-        "After the first human green-light, agent runs the flow autonomously within its score envelope. Every action is anchored on Algorand.",
+        "After human green-light, the agent runs autonomously within its score envelope. Every action anchored on Algorand.",
       accent: C.rose,
       icon: <AutonomousIcon />,
     },
@@ -1212,7 +1229,8 @@ function ValidatorNetwork() {
       name: "Open Slot",
       tag: "Apply →",
       tagColor: C.lime,
-      tagHref: "mailto:rafael@bcpp.io?subject=Verun%20Validator%20Inquiry",
+      tagHref:
+        "mailto:fahad@bcpp.io?subject=Verun%20Validator%20Slot%20Inquiry&body=Hello%20Verun%20team%2C%0A%0AWe%27re%20interested%20in%20joining%20as%20an%20institutional%20validator%3A",
       desc:
         "Institutional validator slot open for European banks, custodians, and regulated compliance partners. Extends the 2-of-3 consensus to institutional scale. Currently filled by an internal Test Validator on testnet — replaced by an institutional partner on Algorand mainnet (Q3 2026, grant Milestone 3).",
       tags: ["Banks", "Custodians", "Institutional"],
@@ -1308,7 +1326,7 @@ function LiveSBT() {
         <SectionHead
           eyebrow="VERIFIABLE ON-CHAIN"
           title={<>The Soulbound Accreditation Token <span className="v-grad">is already live.</span></>}
-          sub="A non-transferable Algorand Standard Asset bound to each accredited agent. Frozen at birth, manager-immutable, clawback-revocable by Verun."
+          sub="A non-transferable ASA bound to each accredited agent. Manager-immutable, clawback-revocable."
         />
 
         <motion.div
@@ -1378,29 +1396,22 @@ function Compliance() {
       name: "EU AI Act",
       cite: "Reg. 2024/1689",
       scope: "Risk classification, transparency (Art. 12), human oversight (Art. 14).",
-      role: "Primary frame for autonomous agent operation in high-risk domains.",
+      role: "Primary frame for autonomous agents in high-risk domains.",
       accent: C.violet,
     },
     {
       name: "MiFID II",
       cite: "Art. 17 · RTS 6",
       scope: "Algorithmic trading safeguards, kill-switch, pre-trade controls.",
-      role: "Applies when agents originate or route orders for regulated instruments.",
+      role: "Applies when agents route orders for regulated instruments.",
       accent: C.lime,
     },
     {
       name: "eIDAS 2.0 / EUDI",
       cite: "Reg. 2024/1183",
       scope: "Attribute attestations, qualified signatures, EUDI Wallet.",
-      role: "Verun SBT acts as a credential — interoperable with EUDI architecture.",
+      role: "Verun SBT is interoperable with EUDI architecture.",
       accent: C.rose,
-    },
-    {
-      name: "DORA",
-      cite: "Reg. 2022/2554",
-      scope: "Operational resilience, ICT risk management, third-party oversight.",
-      role: "Validator consensus + on-chain anchoring map directly to DORA requirements.",
-      accent: C.orange,
     },
   ];
   return (
@@ -1436,6 +1447,16 @@ function Compliance() {
               <div className="v-comp-role">{a.role}</div>
             </motion.div>
           ))}
+        </motion.div>
+
+        <motion.div
+          className="v-comp-extra"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+        >
+          Also aligned with: <span>DORA</span> · <span>eWpG</span>
         </motion.div>
 
         <motion.div
@@ -1531,7 +1552,18 @@ function Team() {
                   {p.tag}
                 </span>
               )}
-              <div className="v-tcard-name">{p.name}</div>
+              <div className="v-tcard-namerow">
+                <div className="v-tcard-name">{p.name}</div>
+                <a
+                  className="v-tcard-linkedin"
+                  href="https://www.linkedin.com/company/bcp-partners-gmbh/"
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={`${p.name} on LinkedIn`}
+                >
+                  <LinkedinIcon />
+                </a>
+              </div>
               <div className="v-tcard-role">{p.role}</div>
               <div className="v-tcard-badges">
                 {p.badges.map((b) => (
@@ -1583,22 +1615,30 @@ function CTAFooter() {
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             <Magnetic>
-              <a href="/docs.html" className="v-btn v-btn-primary">
-                Read the Docs <Arrow />
+              <a
+                href="https://testnet.algoexplorer.io/asset/759213121"
+                className="v-btn v-btn-primary"
+                target="_blank"
+                rel="noopener"
+              >
+                Verify on AlgoExplorer <Arrow />
               </a>
             </Magnetic>
             <Magnetic>
               <a
-                href="https://github.com/Fahad00674/verun-algorand-mvp"
+                href="https://verun-algorand-mvp.vercel.app/docs.html"
                 className="v-btn v-btn-ghost"
                 target="_blank"
                 rel="noopener"
               >
-                GitHub <ExternalIcon />
+                Read the Docs <ExternalIcon />
               </a>
             </Magnetic>
             <Magnetic>
-              <a href="mailto:fahad@bcpp.io" className="v-btn v-btn-ghost">
+              <a
+                href="mailto:fahad@bcpp.io?subject=Verun%20Inquiry&body=Hello%20Verun%20team%2C%0A%0AI%27d%20like%20to%20discuss%3A"
+                className="v-btn v-btn-ghost"
+              >
                 Contact
               </a>
             </Magnetic>
@@ -1627,13 +1667,13 @@ function CTAFooter() {
             </div>
             <div className="v-footer-col">
               <div className="v-footer-h">RESOURCES</div>
-              <a href="/docs.html">Docs</a>
+              <a href="https://verun-algorand-mvp.vercel.app/docs.html" target="_blank" rel="noopener">Docs</a>
               <a href="https://github.com/Fahad00674/verun-algorand-mvp" target="_blank" rel="noopener">GitHub</a>
               <a href="https://verun-stellar-demo.vercel.app" target="_blank" rel="noopener">Stellar Demo</a>
             </div>
             <div className="v-footer-col">
               <div className="v-footer-h">CONTACT</div>
-              <a href="mailto:fahad@bcpp.io">fahad@bcpp.io</a>
+              <a href="mailto:fahad@bcpp.io?subject=Verun%20Inquiry&body=Hello%20Verun%20team%2C%0A%0AI%27d%20like%20to%20discuss%3A">Contact</a>
               <a href="https://bcpp.io" target="_blank" rel="noopener">bcpp.io</a>
             </div>
           </div>
