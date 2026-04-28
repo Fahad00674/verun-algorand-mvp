@@ -2033,14 +2033,9 @@ function Compliance() {
             DISCLOSURE
           </div>
           <div>
-            Independent legal review of these regulatory anchors is planned. The framework above represents the team&rsquo;s design intent — not a certified compliance claim or legal advice.
+            This page reflects the team&rsquo;s design intent. Independent legal review is planned. Verun is not a crypto-asset; the SBT is a non-tradeable credential — MiCA is not Verun&rsquo;s primary regulatory frame. Nothing here constitutes certified compliance or legal advice.
           </div>
         </motion.div>
-
-        <div className="v-comp-mica">
-          <em>Note on MiCA:</em> aspirational on-chain features at the tokenforge integration boundary, pre-audit.
-          Verun itself is not a crypto-asset and the SBT is a non-tradeable credential, so MiCA is not Verun's primary regulatory frame.
-        </div>
       </div>
     </section>
   );
