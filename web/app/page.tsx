@@ -841,25 +841,80 @@ function Modal({
   );
 }
 
-function Toast({ show, children }: { show: boolean; children: ReactNode }) {
+function CheckIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M5 12l5 5L20 7" />
+    </svg>
+  );
+}
+
+type ToastState = {
+  variant: "success" | "error";
+  message: ReactNode;
+} | null;
+
+function Toast({ toast }: { toast: ToastState }) {
   return (
     <AnimatePresence>
-      {show && (
+      {toast && (
         <motion.div
-          className="v-modal-toast"
+          className={`v-modal-toast v-modal-toast-${toast.variant}`}
+          role="status"
+          aria-live="polite"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
         >
-          {children}
+          <span className="v-modal-toast-icon">
+            {toast.variant === "success" ? <CheckIcon /> : <CloseIcon />}
+          </span>
+          <span className="v-modal-toast-msg">{toast.message}</span>
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
 
-const VERUN_INBOX = "fahad@bcpp.io";
+const WEB3FORMS_ACCESS_KEY = "ecb3f63a-2104-4b56-a78a-f8326660cc1e";
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+
+const SUCCESS_MESSAGE = "Message sent! We'll be in touch within 24 hours.";
+const ERROR_MESSAGE: ReactNode = (
+  <>
+    Failed to send. Please try again or email us at{" "}
+    <a href="mailto:fahad@bcpp.io">fahad@bcpp.io</a>
+  </>
+);
+
+async function submitWeb3Form(fields: Record<string, string>): Promise<boolean> {
+  const formData = new FormData();
+  formData.append("access_key", WEB3FORMS_ACCESS_KEY);
+  for (const [k, v] of Object.entries(fields)) {
+    if (v) formData.append(k, v);
+  }
+  try {
+    const res = await fetch(WEB3FORMS_ENDPOINT, {
+      method: "POST",
+      body: formData,
+    });
+    const data = (await res.json()) as { success?: boolean };
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
 
 function ContactModal({
   isOpen,
@@ -872,7 +927,9 @@ function ContactModal({
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
   const [message, setMessage] = useState("");
-  const [toast, setToast] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
+  const dismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const reset = () => {
     setName("");
@@ -882,34 +939,45 @@ function ContactModal({
   };
 
   const handleClose = () => {
+    if (submitting) return;
     onClose();
     reset();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const subject = `Verun Inquiry - ${name}`;
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      company ? `Company: ${company}` : null,
-      "",
-      "Message:",
-      message,
-    ]
-      .filter((l): l is string => l !== null)
-      .join("\n");
+  const scheduleDismiss = (ms: number) => {
+    if (dismissRef.current) clearTimeout(dismissRef.current);
+    dismissRef.current = setTimeout(() => setToast(null), ms);
+  };
 
-    setToast(true);
-    setTimeout(() => {
-      window.location.href = `mailto:${VERUN_INBOX}?subject=${encodeURIComponent(
-        subject
-      )}&body=${encodeURIComponent(body)}`;
-    }, 120);
-    setTimeout(() => {
-      setToast(false);
-      handleClose();
-    }, 1500);
+  useEffect(() => {
+    return () => {
+      if (dismissRef.current) clearTimeout(dismissRef.current);
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+
+    const ok = await submitWeb3Form({
+      subject: `Verun Inquiry - ${name}`,
+      name,
+      email,
+      company,
+      message,
+    });
+
+    if (ok) {
+      setToast({ variant: "success", message: SUCCESS_MESSAGE });
+      reset();
+      setTimeout(() => onClose(), 1500);
+      scheduleDismiss(4000);
+    } else {
+      setToast({ variant: "error", message: ERROR_MESSAGE });
+      scheduleDismiss(4000);
+    }
+    setSubmitting(false);
   };
 
   return (
@@ -931,6 +999,7 @@ function ContactModal({
               onChange={(e) => setName(e.target.value)}
               required
               autoComplete="name"
+              disabled={submitting}
             />
           </label>
           <label className="v-modal-field">
@@ -943,6 +1012,7 @@ function ContactModal({
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
+              disabled={submitting}
             />
           </label>
           <label className="v-modal-field">
@@ -952,6 +1022,7 @@ function ContactModal({
               value={company}
               onChange={(e) => setCompany(e.target.value)}
               autoComplete="organization"
+              disabled={submitting}
             />
           </label>
           <label className="v-modal-field">
@@ -963,21 +1034,28 @@ function ContactModal({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               required
+              disabled={submitting}
             />
           </label>
-          <button type="submit" className="v-modal-submit">
-            Send via Email
+          <button
+            type="submit"
+            className="v-modal-submit"
+            disabled={submitting}
+            aria-busy={submitting}
+          >
+            {submitting ? "Sending..." : "Send Message"}
           </button>
           <button
             type="button"
             className="v-modal-cancel"
             onClick={handleClose}
+            disabled={submitting}
           >
             Cancel
           </button>
         </form>
       </Modal>
-      <Toast show={toast}>Opening your email client...</Toast>
+      <Toast toast={toast} />
     </>
   );
 }
@@ -995,7 +1073,9 @@ function ValidatorInquiryModal({
   const [type, setType] = useState("Bank");
   const [country, setCountry] = useState("");
   const [message, setMessage] = useState("");
-  const [toast, setToast] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
+  const dismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const reset = () => {
     setInstitution("");
@@ -1007,34 +1087,47 @@ function ValidatorInquiryModal({
   };
 
   const handleClose = () => {
+    if (submitting) return;
     onClose();
     reset();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const subject = `Verun Validator Slot Inquiry - ${institution}`;
-    const body = [
-      `Institution: ${institution}`,
-      `Contact Name: ${contactName}`,
-      `Email: ${email}`,
-      `Institution Type: ${type}`,
-      `Country: ${country}`,
-      "",
-      "Message:",
-      message,
-    ].join("\n");
+  const scheduleDismiss = (ms: number) => {
+    if (dismissRef.current) clearTimeout(dismissRef.current);
+    dismissRef.current = setTimeout(() => setToast(null), ms);
+  };
 
-    setToast(true);
-    setTimeout(() => {
-      window.location.href = `mailto:${VERUN_INBOX}?subject=${encodeURIComponent(
-        subject
-      )}&body=${encodeURIComponent(body)}`;
-    }, 120);
-    setTimeout(() => {
-      setToast(false);
-      handleClose();
-    }, 1500);
+  useEffect(() => {
+    return () => {
+      if (dismissRef.current) clearTimeout(dismissRef.current);
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+
+    const ok = await submitWeb3Form({
+      subject: `Verun Validator Slot Inquiry - ${institution}`,
+      institution,
+      contact_name: contactName,
+      email,
+      institution_type: type,
+      country,
+      message,
+    });
+
+    if (ok) {
+      setToast({ variant: "success", message: SUCCESS_MESSAGE });
+      reset();
+      setTimeout(() => onClose(), 1500);
+      scheduleDismiss(4000);
+    } else {
+      setToast({ variant: "error", message: ERROR_MESSAGE });
+      scheduleDismiss(4000);
+    }
+    setSubmitting(false);
   };
 
   return (
@@ -1056,6 +1149,7 @@ function ValidatorInquiryModal({
               onChange={(e) => setInstitution(e.target.value)}
               required
               autoComplete="organization"
+              disabled={submitting}
             />
           </label>
           <label className="v-modal-field">
@@ -1068,6 +1162,7 @@ function ValidatorInquiryModal({
               onChange={(e) => setContactName(e.target.value)}
               required
               autoComplete="name"
+              disabled={submitting}
             />
           </label>
           <label className="v-modal-field">
@@ -1080,6 +1175,7 @@ function ValidatorInquiryModal({
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
+              disabled={submitting}
             />
           </label>
           <label className="v-modal-field">
@@ -1090,6 +1186,7 @@ function ValidatorInquiryModal({
               value={type}
               onChange={(e) => setType(e.target.value)}
               required
+              disabled={submitting}
             >
               <option>Bank</option>
               <option>Custodian</option>
@@ -1108,6 +1205,7 @@ function ValidatorInquiryModal({
               onChange={(e) => setCountry(e.target.value)}
               required
               autoComplete="country-name"
+              disabled={submitting}
             />
           </label>
           <label className="v-modal-field">
@@ -1120,21 +1218,28 @@ function ValidatorInquiryModal({
               onChange={(e) => setMessage(e.target.value)}
               required
               placeholder="Tell us about your institution and validator interest..."
+              disabled={submitting}
             />
           </label>
-          <button type="submit" className="v-modal-submit">
-            Send via Email
+          <button
+            type="submit"
+            className="v-modal-submit"
+            disabled={submitting}
+            aria-busy={submitting}
+          >
+            {submitting ? "Sending..." : "Submit Inquiry"}
           </button>
           <button
             type="button"
             className="v-modal-cancel"
             onClick={handleClose}
+            disabled={submitting}
           >
             Cancel
           </button>
         </form>
       </Modal>
-      <Toast show={toast}>Opening your email client...</Toast>
+      <Toast toast={toast} />
     </>
   );
 }
