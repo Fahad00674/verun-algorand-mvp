@@ -1779,7 +1779,7 @@ function ValidatorNetwork() {
       tagColor: C.lime,
       tagAction: () => setValidatorModalOpen(true),
       desc:
-        "Open slot reserved for an institutional validator on Algorand mainnet (Q3 2026, grant Milestone 3). Targeting EU banks, custodians, and regulated compliance partners.",
+        "Open slot reserved for an institutional validator on Algorand mainnet (planned Q3 2026). Targeting EU banks, custodians, and regulated compliance partners.",
       tags: ["Banks", "Custodians", "Institutional"],
     },
   ];
@@ -2013,15 +2013,27 @@ function Compliance() {
 
         <motion.div
           className="v-comp-audit"
+          style={{
+            background: "rgba(255,255,255,0.02)",
+            borderColor: "var(--border-strong)",
+          }}
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <div className="v-comp-audit-tag">AUDIT</div>
+          <div
+            className="v-comp-audit-tag"
+            style={{
+              color: "var(--text-3)",
+              background: "rgba(255,255,255,0.04)",
+              borderColor: "var(--border-strong)",
+            }}
+          >
+            DISCLOSURE
+          </div>
           <div>
-            <strong>PwC-grade legal audit</strong> · Q3 2026 · funded by Algorand Foundation xGov Grant Milestone 1.
-            Public legal opinion to follow.
+            Independent legal review of these regulatory anchors is planned. The framework above represents the team&rsquo;s design intent — not a certified compliance claim or legal advice.
           </div>
         </motion.div>
 
@@ -2213,7 +2225,7 @@ function CTAFooter() {
             <InfoIcon />
           </span>
           <p>
-            <strong>Beta · Testnet preview.</strong> The Verun Protocol is currently deployed on Algorand testnet for demonstration purposes. Features, on-chain parameters, design, and integrations may change before mainnet release (Q3 2026, post grant Milestone 3). Nothing on this site constitutes financial, legal, or investment advice.
+            <strong>Beta · Testnet preview.</strong> The Verun Protocol is currently deployed on Algorand testnet for demonstration purposes. Features, on-chain parameters, design, and integrations may change before mainnet release (planned Q3 2026). Nothing on this site constitutes financial, legal, or investment advice.
           </p>
         </div>
       </aside>
