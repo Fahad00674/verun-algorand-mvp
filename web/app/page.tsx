@@ -1482,11 +1482,125 @@ type ModeTabId = "discovery" | "supervised" | "autonomous";
 
 function Modes() {
   const [activeTab, setActiveTab] = useState<ModeTabId>("discovery");
+  const [tourEnabled, setTourEnabled] = useState(true);
+  const [tourPaused, setTourPaused] = useState(false);
+  const [tourPulseTab, setTourPulseTab] = useState<ModeTabId | null>(null);
+
   const tabs: Array<{ id: ModeTabId; label: string }> = [
     { id: "discovery", label: "Discovery" },
     { id: "supervised", label: "Supervised" },
     { id: "autonomous", label: "Autonomous" },
   ];
+
+  const tabRefs = useRef<Record<ModeTabId, HTMLButtonElement | null>>({
+    discovery: null,
+    supervised: null,
+    autonomous: null,
+  });
+  const screenRef = useRef<HTMLDivElement>(null);
+  const laptopRef = useRef<HTMLDivElement>(null);
+  const tabPositionsRef = useRef<Record<ModeTabId, { x: number; y: number }>>({
+    discovery: { x: 0, y: 0 },
+    supervised: { x: 0, y: 0 },
+    autonomous: { x: 0, y: 0 },
+  });
+
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
+  const cursorOpacity = useMotionValue(0);
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const screen = screenRef.current;
+      if (!screen) return;
+      const s = screen.getBoundingClientRect();
+      (["discovery", "supervised", "autonomous"] as ModeTabId[]).forEach((id) => {
+        const btn = tabRefs.current[id];
+        if (!btn) return;
+        const b = btn.getBoundingClientRect();
+        tabPositionsRef.current[id] = {
+          x: b.left - s.left + b.width / 2 - 4,
+          y: b.top - s.top + b.height / 2 - 4,
+        };
+      });
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  useEffect(() => {
+    const el = laptopRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setTourPaused(!entry.isIntersecting),
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!tourEnabled || tourPaused) {
+      animate(cursorOpacity, 0, { duration: 0.2 });
+      setTourPulseTab(null);
+      return;
+    }
+
+    let cancelled = false;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const sched = (ms: number, fn: () => void) => {
+      const t = setTimeout(() => {
+        if (!cancelled) fn();
+      }, ms);
+      timers.push(t);
+    };
+
+    const holdMap: Record<ModeTabId, number> = {
+      discovery: 7000,
+      supervised: 9000,
+      autonomous: 10000,
+    };
+    const nextMap: Record<ModeTabId, ModeTabId> = {
+      discovery: "supervised",
+      supervised: "autonomous",
+      autonomous: "discovery",
+    };
+
+    const next = nextMap[activeTab];
+    const hold = holdMap[activeTab];
+
+    sched(hold, () => {
+      const fromPos = tabPositionsRef.current[activeTab];
+      cursorX.set(fromPos.x);
+      cursorY.set(fromPos.y);
+      animate(cursorOpacity, 1, { duration: 0.4 });
+    });
+    sched(hold + 250, () => {
+      const toPos = tabPositionsRef.current[next];
+      animate(cursorX, toPos.x, { duration: 1.2, ease: [0.22, 1, 0.36, 1] });
+      animate(cursorY, toPos.y, { duration: 1.2, ease: [0.22, 1, 0.36, 1] });
+    });
+    sched(hold + 1500, () => setTourPulseTab(next));
+    sched(hold + 1700, () => {
+      setActiveTab(next);
+      setTourPulseTab(null);
+      animate(cursorOpacity, 0, { duration: 0.3 });
+    });
+
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
+  }, [tourEnabled, tourPaused, activeTab, cursorOpacity, cursorX, cursorY]);
+
+  const handleTabClick = (id: ModeTabId) => {
+    if (id === activeTab) return;
+    setTourEnabled(false);
+    setActiveTab(id);
+  };
+
+  const tourIndex = activeTab === "discovery" ? 1 : activeTab === "supervised" ? 2 : 3;
 
   return (
     <section id="modes" className="v-section">
@@ -1498,6 +1612,7 @@ function Modes() {
         />
 
         <motion.div
+          ref={laptopRef}
           className="v-laptop"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1506,20 +1621,42 @@ function Modes() {
         >
           <div className="v-laptop-bezel">
             <span className="v-laptop-notch" aria-hidden />
-            <div className="v-laptop-screen">
+            <div ref={screenRef} className="v-laptop-screen">
               <div className="v-laptop-tabs" role="tablist" aria-label="Operating modes">
                 {tabs.map((t) => (
-                  <button
+                  <motion.button
+                    ref={(el) => {
+                      tabRefs.current[t.id] = el;
+                    }}
                     key={t.id}
                     type="button"
                     role="tab"
                     aria-selected={activeTab === t.id}
-                    onClick={() => setActiveTab(t.id)}
+                    onClick={() => handleTabClick(t.id)}
                     className={`v-tab${activeTab === t.id ? " v-tab-active" : ""}`}
+                    animate={
+                      tourPulseTab === t.id
+                        ? { scale: [1, 0.96, 1] }
+                        : { scale: 1 }
+                    }
+                    transition={{ duration: 0.22, ease: [0.4, 0, 0.6, 1] }}
                   >
                     {t.label}
-                  </button>
+                  </motion.button>
                 ))}
+                {tourEnabled ? (
+                  <span className="v-tour-indicator" aria-hidden>
+                    TOUR · {tourIndex} / 3
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="v-tour-resume"
+                    onClick={() => setTourEnabled(true)}
+                  >
+                    ▶ Resume tour
+                  </button>
+                )}
               </div>
               <div className="v-laptop-content">
                 <AnimatePresence mode="wait">
@@ -1528,6 +1665,13 @@ function Modes() {
                   {activeTab === "autonomous" && <AutonomousDemo key="autonomous" />}
                 </AnimatePresence>
               </div>
+              <motion.div
+                className="v-tour-cursor"
+                style={{ x: cursorX, y: cursorY, opacity: cursorOpacity }}
+                aria-hidden
+              >
+                <CursorIcon />
+              </motion.div>
             </div>
           </div>
           <div className="v-laptop-base" aria-hidden />

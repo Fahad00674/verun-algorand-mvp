@@ -1126,9 +1126,60 @@ code { font-family: var(--mono); font-size: 0.9em; }
 
 .v-laptop-tabs {
   display: flex;
+  align-items: center;
   border-bottom: 1px solid var(--border);
   padding: 0 12px;
   flex-shrink: 0;
+}
+
+.v-tour-indicator {
+  margin-left: auto;
+  margin-right: 8px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--violet-bright);
+  background: rgba(159,109,255,0.10);
+  border: 1px solid rgba(159,109,255,0.32);
+  padding: 4px 10px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.v-tour-resume {
+  margin-left: auto;
+  margin-right: 6px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  letter-spacing: 0.02em;
+}
+.v-tour-resume:hover {
+  color: var(--text);
+  border-color: var(--text-2);
+  background: rgba(255,255,255,0.03);
+}
+
+.v-tour-cursor {
+  position: absolute;
+  top: 0; left: 0;
+  width: 24px; height: 24px;
+  pointer-events: none;
+  z-index: 14;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+}
+
+@media (max-width: 640px) {
+  .v-tour-indicator { font-size: 8.5px; padding: 3px 8px; letter-spacing: 0.16em; }
+  .v-tour-resume { font-size: 10px; padding: 3px 10px; }
 }
 .v-tab {
   padding: 14px 22px;
