@@ -301,20 +301,6 @@ function Hero() {
             ↓ See how it works
           </a>
         </motion.div>
-
-        <motion.div
-          className="v-scroll-cue"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 3.3, duration: 0.8 }}
-        >
-          <span>Scroll</span>
-          <motion.div
-            className="v-scroll-line"
-            animate={{ scaleY: [0.2, 1, 0.2] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </motion.div>
       </div>
     </header>
   );
@@ -650,12 +636,12 @@ const AGENT_SCORES = [620, 740, 820, 680, 910, 760, 850, 690, 800, 730];
 function pickSpawnPoint(): { x: string; y: string } {
   const edge = Math.floor(Math.random() * 3);
   if (edge === 0) {
-    return { x: "6%", y: `${15 + Math.random() * 70}%` };
+    return { x: "-8%", y: `${15 + Math.random() * 70}%` };
   }
   if (edge === 1) {
-    return { x: "94%", y: `${15 + Math.random() * 70}%` };
+    return { x: "108%", y: `${15 + Math.random() * 70}%` };
   }
-  return { x: `${15 + Math.random() * 70}%`, y: "8%" };
+  return { x: `${15 + Math.random() * 70}%`, y: "-8%" };
 }
 
 function AgentFlow() {
@@ -736,10 +722,10 @@ function AgentCardItem({
     const t1 = setTimeout(() => {
       setPhase("verified");
       setScoreVisible(true);
-    }, 3500);
-    const t2 = setTimeout(() => setScoreVisible(false), 4000);
-    const t3 = setTimeout(() => setPhase("exiting"), 4600);
-    const t4 = setTimeout(onComplete, 5800);
+    }, 4200);
+    const t2 = setTimeout(() => setScoreVisible(false), 4900);
+    const t3 = setTimeout(() => setPhase("exiting"), 5300);
+    const t4 = setTimeout(onComplete, 6500);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -750,11 +736,11 @@ function AgentCardItem({
 
   const sx = parseFloat(agent.spawn.x);
   const sy = parseFloat(agent.spawn.y);
-  const exitX = `${50 + (sx - 50) * 0.4}%`;
-  const exitY = `${50 + (sy - 50) * 0.4}%`;
+  const exitX = `${50 + (sx - 50) * 1.1}%`;
+  const exitY = `${50 + (sy - 50) * 1.1}%`;
 
-  const baseShadow = "0 0 12px rgba(159,109,255,0.25)";
-  const burstShadow = "0 0 32px rgba(159,109,255,0.75)";
+  const baseShadow = "0 0 20px rgba(159,109,255,0.5)";
+  const burstShadow = "0 0 40px rgba(232,255,140,0.8)";
 
   return (
     <motion.div
@@ -771,7 +757,7 @@ function AgentCardItem({
           ? {
               left: "50%",
               top: "50%",
-              opacity: 0.95,
+              opacity: 1,
               scale: 1,
               boxShadow: baseShadow,
             }
@@ -779,8 +765,8 @@ function AgentCardItem({
             ? {
                 left: "50%",
                 top: "50%",
-                opacity: 0.95,
-                scale: [1, 1.15, 1],
+                opacity: 1,
+                scale: [1, 1.3, 1],
                 boxShadow: [baseShadow, burstShadow, baseShadow],
               }
             : {
@@ -793,7 +779,7 @@ function AgentCardItem({
       }
       transition={{
         duration:
-          phase === "flying" ? 3.7 : phase === "verified" ? 0.3 : 1.2,
+          phase === "flying" ? 4.2 : phase === "verified" ? 0.45 : 1.2,
         ease:
           phase === "flying"
             ? [0.22, 1, 0.36, 1]
