@@ -1606,143 +1606,19 @@ function SectionHead({
 }
 
 /* ────────────────────────────────────────────────────────────
- * MODES — interactive laptop-frame demo (Discovery · Supervised · Autonomous)
+ * MODES — single supervised dashboard + try-it-live panel
  * ──────────────────────────────────────────────────────────── */
-type ModeTabId = "discovery" | "supervised" | "autonomous";
-
 function Modes() {
-  const [activeTab, setActiveTab] = useState<ModeTabId>("discovery");
-  const [tourEnabled, setTourEnabled] = useState(true);
-  const [tourPaused, setTourPaused] = useState(false);
-  const [tourPulseTab, setTourPulseTab] = useState<ModeTabId | null>(null);
-
-  const tabs: Array<{ id: ModeTabId; label: string }> = [
-    { id: "discovery", label: "Discovery" },
-    { id: "supervised", label: "Supervised" },
-    { id: "autonomous", label: "Autonomous" },
-  ];
-
-  const tabRefs = useRef<Record<ModeTabId, HTMLButtonElement | null>>({
-    discovery: null,
-    supervised: null,
-    autonomous: null,
-  });
-  const screenRef = useRef<HTMLDivElement>(null);
-  const laptopRef = useRef<HTMLDivElement>(null);
-  const tabPositionsRef = useRef<Record<ModeTabId, { x: number; y: number }>>({
-    discovery: { x: 0, y: 0 },
-    supervised: { x: 0, y: 0 },
-    autonomous: { x: 0, y: 0 },
-  });
-
-  const cursorX = useMotionValue(0);
-  const cursorY = useMotionValue(0);
-  const cursorOpacity = useMotionValue(0);
-
-  useLayoutEffect(() => {
-    const measure = () => {
-      const screen = screenRef.current;
-      if (!screen) return;
-      const s = screen.getBoundingClientRect();
-      (["discovery", "supervised", "autonomous"] as ModeTabId[]).forEach((id) => {
-        const btn = tabRefs.current[id];
-        if (!btn) return;
-        const b = btn.getBoundingClientRect();
-        tabPositionsRef.current[id] = {
-          x: b.left - s.left + b.width / 2 - 4,
-          y: b.top - s.top + b.height / 2 - 4,
-        };
-      });
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, []);
-
-  useEffect(() => {
-    const el = laptopRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setTourPaused(!entry.isIntersecting),
-      { threshold: 0.2 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!tourEnabled || tourPaused) {
-      animate(cursorOpacity, 0, { duration: 0.2 });
-      setTourPulseTab(null);
-      return;
-    }
-
-    let cancelled = false;
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    const sched = (ms: number, fn: () => void) => {
-      const t = setTimeout(() => {
-        if (!cancelled) fn();
-      }, ms);
-      timers.push(t);
-    };
-
-    const holdMap: Record<ModeTabId, number> = {
-      discovery: 5000,
-      supervised: 6000,
-      autonomous: 7000,
-    };
-    const nextMap: Record<ModeTabId, ModeTabId> = {
-      discovery: "supervised",
-      supervised: "autonomous",
-      autonomous: "discovery",
-    };
-
-    const next = nextMap[activeTab];
-    const hold = holdMap[activeTab];
-
-    sched(hold, () => {
-      const fromPos = tabPositionsRef.current[activeTab];
-      cursorX.set(fromPos.x);
-      cursorY.set(fromPos.y);
-      animate(cursorOpacity, 1, { duration: 0.4 });
-    });
-    sched(hold + 250, () => {
-      const toPos = tabPositionsRef.current[next];
-      animate(cursorX, toPos.x, { duration: 0.7, ease: [0.22, 1, 0.36, 1] });
-      animate(cursorY, toPos.y, { duration: 0.7, ease: [0.22, 1, 0.36, 1] });
-    });
-    sched(hold + 1000, () => setTourPulseTab(next));
-    sched(hold + 1200, () => {
-      setActiveTab(next);
-      setTourPulseTab(null);
-      animate(cursorOpacity, 0, { duration: 0.3 });
-    });
-
-    return () => {
-      cancelled = true;
-      timers.forEach(clearTimeout);
-    };
-  }, [tourEnabled, tourPaused, activeTab, cursorOpacity, cursorX, cursorY]);
-
-  const handleTabClick = (id: ModeTabId) => {
-    if (id === activeTab) return;
-    setTourEnabled(false);
-    setActiveTab(id);
-  };
-
-  const tourIndex = activeTab === "discovery" ? 1 : activeTab === "supervised" ? 2 : 3;
-
   return (
     <section id="modes" className="v-section">
       <div className="v-container">
         <SectionHead
-          eyebrow="OPERATING MODES"
-          title={<>How agents <span className="v-grad">use Verun.</span></>}
-          sub="Three steps: agents find a platform, get human approval, then run autonomously."
+          eyebrow="SUPERVISED EXECUTION"
+          title={<>Human-approved <span className="v-grad">agent execution.</span></>}
+          sub="Submit an agent's intent. Get a real consensus decision. Anchored on Algorand."
         />
 
         <motion.div
-          ref={laptopRef}
           className="v-laptop"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1751,139 +1627,21 @@ function Modes() {
         >
           <div className="v-laptop-bezel">
             <span className="v-laptop-notch" aria-hidden />
-            <div ref={screenRef} className="v-laptop-screen">
-              <div className="v-laptop-tabs" role="tablist" aria-label="Operating modes">
-                {tabs.map((t) => (
-                  <motion.button
-                    ref={(el) => {
-                      tabRefs.current[t.id] = el;
-                    }}
-                    key={t.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={activeTab === t.id}
-                    onClick={() => handleTabClick(t.id)}
-                    className={`v-tab${activeTab === t.id ? " v-tab-active" : ""}`}
-                    animate={
-                      tourPulseTab === t.id
-                        ? { scale: [1, 0.96, 1] }
-                        : { scale: 1 }
-                    }
-                    transition={{ duration: 0.22, ease: [0.4, 0, 0.6, 1] }}
-                  >
-                    {t.label}
-                  </motion.button>
-                ))}
-                {tourEnabled ? (
-                  <span className="v-tour-indicator" aria-hidden>
-                    TOUR · {tourIndex} / 3
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    className="v-tour-resume"
-                    onClick={() => setTourEnabled(true)}
-                  >
-                    ▶ Resume tour
-                  </button>
-                )}
+            <div className="v-laptop-screen">
+              <div className="v-laptop-header">
+                <span className="v-laptop-mode-label">SUPERVISED MODE</span>
               </div>
               <div className="v-laptop-content">
-                <AnimatePresence mode="wait">
-                  {activeTab === "discovery" && <DiscoveryDemo key="discovery" />}
-                  {activeTab === "supervised" && <SupervisedDemo key="supervised" />}
-                  {activeTab === "autonomous" && <AutonomousDemo key="autonomous" />}
-                </AnimatePresence>
+                <SupervisedDemo />
               </div>
-              <motion.div
-                className="v-tour-cursor"
-                style={{ x: cursorX, y: cursorY, opacity: cursorOpacity }}
-                aria-hidden
-              >
-                <CursorIcon />
-              </motion.div>
             </div>
           </div>
           <div className="v-laptop-base" aria-hidden />
         </motion.div>
 
-        <CurlBlock activeTab={activeTab} />
+        <TryItLive />
       </div>
     </section>
-  );
-}
-
-function DiscoveryDemo() {
-  const [cycleKey, setCycleKey] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setCycleKey((k) => k + 1), 6000);
-    return () => clearInterval(t);
-  }, []);
-
-  return (
-    <motion.div
-      className="v-demo v-demo-discovery"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="v-demo-status">
-        <span className="v-demo-status-dot" /> scanning agent registry…
-      </div>
-
-      <div className="v-discovery-stage" key={cycleKey}>
-        <div className="v-radar" aria-hidden>
-          <span className="v-radar-pulse" />
-          <span className="v-radar-pulse" style={{ animationDelay: "1.3s" }} />
-        </div>
-
-        <motion.div
-          className="v-tile v-tile-rec v-tile-solo"
-          initial={{ opacity: 0, x: -32 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <span
-            className="v-tile-mono"
-            style={{ background: `${C.violet}26`, color: C.violet }}
-          >
-            T
-          </span>
-          <div className="v-tile-body">
-            <span className="v-tile-name">tokenforge</span>
-            <motion.span
-              className="v-tile-score"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 1.9 }}
-            >
-              820
-            </motion.span>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="v-discovery-meta"
-          key={`m-${cycleKey}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 2.4 }}
-        >
-          1 verified platform available
-        </motion.div>
-      </div>
-
-      <motion.div
-        className="v-discovery-footer"
-        key={`f-${cycleKey}`}
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 3.0 }}
-      >
-        → Recommended: <strong>tokenforge</strong> · score 820
-      </motion.div>
-    </motion.div>
   );
 }
 
@@ -2185,159 +1943,165 @@ function SupervisedDemo() {
   );
 }
 
-type TerminalRow = {
-  uid: number;
-  time: string;
-  agent: string;
-  score: number;
-  op: string;
-  status: "ok" | "blocked";
-  tx: string | null;
+/* ────────────────────────────────────────────────────────────
+ * TRY-IT-LIVE — fires a real /api/evaluate request and shows the response
+ * ──────────────────────────────────────────────────────────── */
+const TRYIT_ENDPOINT = "https://verun-algorand-mvp.vercel.app/api/evaluate";
+const TRYIT_PAYLOAD = {
+  agentId: "agt_demo",
+  score: 820,
+  operation: "transfer",
 };
+const TRYIT_CURL =
+  "curl -X POST https://verun-algorand-mvp.vercel.app/api/evaluate \\\n" +
+  "  -H \"Content-Type: application/json\" \\\n" +
+  "  -d '{\n" +
+  "    \"agentId\": \"agt_demo\",\n" +
+  "    \"score\": 820,\n" +
+  "    \"operation\": \"transfer\"\n" +
+  "  }'";
 
-function AutonomousDemo() {
-  const samples = [
-    { time: "09:33:09", agent: "agt_demo", score: 820, op: "transfer", status: "ok" as const, tx: "KBGS...6BZA" },
-    { time: "09:33:14", agent: "agt_xyz_2", score: 760, op: "mint", status: "ok" as const, tx: "LMNO...4ZX1" },
-    { time: "09:33:18", agent: "agt_abc_5", score: 240, op: "transfer", status: "blocked" as const, tx: null },
-    { time: "09:33:22", agent: "agt_q_7", score: 910, op: "order", status: "ok" as const, tx: "PQRS...M8N3" },
-    { time: "09:33:25", agent: "agt_demo", score: 820, op: "read", status: "ok" as const, tx: "TUVW...0Y2K" },
-  ];
+type TryItResult =
+  | {
+      ok: true;
+      permitted: boolean;
+      consensus: string;
+      txid: string | null;
+    }
+  | { ok: false; error: string };
 
-  const [rows, setRows] = useState<TerminalRow[]>(() =>
-    samples.slice(0, 4).map((r, i) => ({ ...r, uid: i }))
-  );
-  const idRef = useRef(4);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setRows((prev) => {
-        const next: TerminalRow[] = [
-          ...prev,
-          { ...samples[idRef.current % samples.length], uid: idRef.current },
-        ];
-        idRef.current++;
-        return next.length > 5 ? next.slice(next.length - 5) : next;
-      });
-    }, 1700);
-    return () => clearInterval(t);
-  }, []);
-
-  return (
-    <motion.div
-      className="v-demo v-demo-autonomous"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="v-term-header">
-        <span className="v-term-dot" />
-        verun · live evaluations · testnet
-      </div>
-
-      <div className="v-term-body">
-        <AnimatePresence initial={false}>
-          {rows.map((r) => (
-            <motion.div
-              key={r.uid}
-              layout
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -14 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className={`v-term-row ${r.status === "ok" ? "v-term-ok" : "v-term-blocked"}`}
-            >
-              <span className="v-term-time">{r.time}</span>
-              <span className="v-term-agent">{r.agent}</span>
-              <span className="v-term-score">score {r.score}</span>
-              <span className="v-term-op">{r.op}</span>
-              <span className="v-term-status">
-                {r.status === "ok" ? "✓ permitted" : "✗ BLOCKED (below 500)"}
-              </span>
-              <span className="v-term-tx">{r.tx ? `→ ${r.tx}` : ""}</span>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
-
-      <div className="v-term-footer">100% on-chain anchored · 2-of-3 validator consensus</div>
-    </motion.div>
-  );
+function truncateTxid(txid: string): string {
+  if (txid.length <= 12) return txid;
+  return `${txid.slice(0, 8)}…${txid.slice(-4)}`;
 }
 
-function CurlBlock({ activeTab }: { activeTab: ModeTabId }) {
-  const examples: Record<ModeTabId, { label: string; code: string }> = {
-    discovery: {
-      label: "DISCOVERY · See available platforms",
-      code: "curl https://verun-algorand-mvp.vercel.app/api/validators",
-    },
-    supervised: {
-      label: "SUPERVISED · Evaluate one agent",
-      code:
-        "curl -X POST https://verun-algorand-mvp.vercel.app/api/evaluate \\\n" +
-        "  -H \"Content-Type: application/json\" \\\n" +
-        "  -d '{\n" +
-        "    \"agentId\": \"agt_demo\",\n" +
-        "    \"score\": 820,\n" +
-        "    \"operation\": \"transfer\"\n" +
-        "  }'",
-    },
-    autonomous: {
-      label: "AUTONOMOUS · Continuous evaluations",
-      code:
-        "# pseudo-code\n" +
-        "for agent in agent_pool:\n" +
-        "  res = POST /api/evaluate { agentId, score, operation }\n" +
-        "  if res.permitted and res.consensus == \"2-of-3\":\n" +
-        "    execute(agent.action)        # anchored on Algorand",
-    },
-  };
+function TryItLive() {
+  const [running, setRunning] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const [result, setResult] = useState<TryItResult | null>(null);
 
-  const [copied, setCopied] = useState(false);
-  const handleCopy = async () => {
+  const handleRun = async () => {
+    if (disabled || running) return;
+    setRunning(true);
+    setDisabled(true);
+    setResult(null);
+
     try {
-      await navigator.clipboard.writeText(examples[activeTab].code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      const res = await fetch(TRYIT_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(TRYIT_PAYLOAD),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as Record<string, unknown>;
+
+      const permitted =
+        typeof data.permitted === "boolean" ? data.permitted : true;
+      const consensus =
+        typeof data.consensus === "string" ? data.consensus : "2-of-3";
+      const txidRaw =
+        (data.txid as string | undefined) ??
+        (data.txId as string | undefined) ??
+        (data.transactionId as string | undefined) ??
+        null;
+
+      setResult({ ok: true, permitted, consensus, txid: txidRaw });
+      setRunning(false);
+      setTimeout(() => setDisabled(false), 5000);
     } catch {
-      /* clipboard unsupported */
+      setResult({ ok: false, error: "Request failed — try again" });
+      setRunning(false);
+      setTimeout(() => setDisabled(false), 2000);
     }
   };
 
   return (
-    <div className="v-curl">
+    <div className="v-tryit">
       <div className="v-curl-head">
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={activeTab}
-            className="v-curl-label"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.2 }}
-          >
-            {examples[activeTab].label}
-          </motion.span>
-        </AnimatePresence>
-        <button type="button" className="v-curl-copy" onClick={handleCopy}>
-          {copied ? "Copied" : "Copy"}
-        </button>
+        <span className="v-curl-label">SUPERVISED · /api/evaluate</span>
       </div>
       <div className="v-curl-codewrap">
-        <AnimatePresence mode="wait">
-          <motion.pre
-            key={activeTab}
-            className="v-curl-code"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.2 }}
-          >
-            <code>{examples[activeTab].code}</code>
-          </motion.pre>
-        </AnimatePresence>
+        <pre className="v-curl-code">
+          <code>{TRYIT_CURL}</code>
+        </pre>
       </div>
+
+      <p className="v-tryit-helper">
+        Click below to fire a real <code>/api/evaluate</code> request. The
+        response is anchored on Algorand testnet and verifiable on Lora
+        explorer.
+      </p>
+
+      <div className="v-tryit-actionbar">
+        <button
+          type="button"
+          className="v-tryit-run"
+          onClick={handleRun}
+          disabled={disabled}
+          aria-busy={running}
+        >
+          {running ? (
+            <>
+              <span className="v-tryit-spinner" aria-hidden /> Anchoring on
+              testnet…
+            </>
+          ) : (
+            <>▶ Run on Algorand Testnet</>
+          )}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {result && (
+          <motion.div
+            key={result.ok ? "ok" : "err"}
+            className={`v-tryit-result${
+              result.ok ? " v-tryit-result-ok" : " v-tryit-result-err"
+            }`}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            role="status"
+            aria-live="polite"
+          >
+            {result.ok ? (
+              <>
+                <div className="v-tryit-row">
+                  <span className="v-tryit-check">✓</span> permitted:{" "}
+                  <strong>{String(result.permitted)}</strong>
+                </div>
+                <div className="v-tryit-row">
+                  consensus: <strong>{result.consensus}</strong>
+                </div>
+                {result.txid && (
+                  <div className="v-tryit-row v-tryit-row-tx">
+                    <span>txid:</span>
+                    <a
+                      href={`https://lora.algokit.io/testnet/tx/${result.txid}`}
+                      target="_blank"
+                      rel="noopener"
+                      className="v-tryit-txid"
+                    >
+                      {truncateTxid(result.txid)}
+                    </a>
+                    <a
+                      href={`https://lora.algokit.io/testnet/tx/${result.txid}`}
+                      target="_blank"
+                      rel="noopener"
+                      className="v-tryit-verify"
+                    >
+                      Verify on Lora →
+                    </a>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="v-tryit-error">{result.error}</div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
