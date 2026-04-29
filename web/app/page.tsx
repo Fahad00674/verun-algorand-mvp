@@ -1557,9 +1557,9 @@ function Modes() {
     };
 
     const holdMap: Record<ModeTabId, number> = {
-      discovery: 7000,
-      supervised: 9000,
-      autonomous: 10000,
+      discovery: 5000,
+      supervised: 6000,
+      autonomous: 7000,
     };
     const nextMap: Record<ModeTabId, ModeTabId> = {
       discovery: "supervised",
@@ -1578,11 +1578,11 @@ function Modes() {
     });
     sched(hold + 250, () => {
       const toPos = tabPositionsRef.current[next];
-      animate(cursorX, toPos.x, { duration: 1.2, ease: [0.22, 1, 0.36, 1] });
-      animate(cursorY, toPos.y, { duration: 1.2, ease: [0.22, 1, 0.36, 1] });
+      animate(cursorX, toPos.x, { duration: 0.7, ease: [0.22, 1, 0.36, 1] });
+      animate(cursorY, toPos.y, { duration: 0.7, ease: [0.22, 1, 0.36, 1] });
     });
-    sched(hold + 1500, () => setTourPulseTab(next));
-    sched(hold + 1700, () => {
+    sched(hold + 1000, () => setTourPulseTab(next));
+    sched(hold + 1200, () => {
       setActiveTab(next);
       setTourPulseTab(null);
       animate(cursorOpacity, 0, { duration: 0.3 });
@@ -1742,7 +1742,7 @@ function DiscoveryDemo() {
           className="v-tile v-tile-rec v-tile-solo"
           initial={{ opacity: 0, x: -32 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.4, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
         >
           <span
             className="v-tile-mono"
@@ -1779,7 +1779,7 @@ function DiscoveryDemo() {
         key={`f-${cycleKey}`}
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 3.0 }}
+        transition={{ duration: 0.3, delay: 3.0 }}
       >
         → Recommended: <strong>tokenforge</strong> · score 820
       </motion.div>
@@ -1835,8 +1835,8 @@ function SupervisedDemo() {
     }
     setValidatorPhase(0);
     const t1 = setTimeout(() => setValidatorPhase(1), 400);
-    const t2 = setTimeout(() => setValidatorPhase(2), 600);
-    const t3 = setTimeout(() => setValidatorPhase(3), 800);
+    const t2 = setTimeout(() => setValidatorPhase(2), 550);
+    const t3 = setTimeout(() => setValidatorPhase(3), 700);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -1876,14 +1876,14 @@ function SupervisedDemo() {
 
       sched(1500, () => setCursorActive(true));
       sched(1750, () => setCursorAt("approve"));
-      sched(2950, () => setPulseClick(true));
-      sched(3150, () => {
+      sched(2550, () => setPulseClick(true));
+      sched(2750, () => {
         setState("approved");
         setPulseClick(false);
       });
-      sched(7150, () => setCursorActive(false));
-      sched(7600, () => setState("idle"));
-      sched(9600, run);
+      sched(5750, () => setCursorActive(false));
+      sched(6200, () => setState("idle"));
+      sched(7700, run);
     };
 
     run();
@@ -2074,8 +2074,8 @@ function SupervisedDemo() {
         }}
         transition={{
           opacity: { duration: 0.4 },
-          x: { duration: 1.2, ease: [0.22, 1, 0.36, 1] },
-          y: { duration: 1.2, ease: [0.22, 1, 0.36, 1] },
+          x: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+          y: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
         }}
         aria-hidden
       >
