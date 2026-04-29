@@ -2797,22 +2797,10 @@ function Team() {
       linkedin: "https://www.linkedin.com/in/rafaelschultz/",
     },
     {
-      name: "Robert Pietzka",
-      role: "Partner — Regulation & ETF",
-      badges: ["J.P. Morgan", "CACEIS"],
-      linkedin: "https://www.linkedin.com/in/robert-pietzka/",
-    },
-    {
-      name: "Christoph Iwaniez",
-      role: "Advisor — Banking & Fintech",
-      badges: ["Forge Europe", "Nuri", "Bitwala"],
-      linkedin: "https://www.linkedin.com/in/christoph-iwaniez/",
-    },
-    {
-      name: "Jan Hodok",
-      role: "Partner — Strategy & PR",
-      badges: ["British American Tobacco", "Belendorf AG"],
-      linkedin: "https://www.linkedin.com/in/jan-hodok-b436591/",
+      name: "Nils Engeln",
+      role: "Project Partner",
+      badges: ["w3.fund", "Blockscape Finance AG"],
+      linkedin: "https://www.linkedin.com/in/nils-engeln-ab9629106/",
     },
     {
       name: "Carina Couillard",

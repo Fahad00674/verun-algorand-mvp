@@ -886,9 +886,9 @@ code { font-family: var(--mono); font-size: 0.9em; }
    TEAM
    ────────────────────────────────────────────────────────── */
 .v-team {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
 }
-@media (max-width: 880px) { .v-team { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1024px) { .v-team { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .v-team { grid-template-columns: 1fr; } }
 .v-tcard {
   position: relative;
