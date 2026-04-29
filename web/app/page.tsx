@@ -1615,8 +1615,8 @@ function Modes() {
     <section id="modes" className="v-section">
       <div className="v-container">
         <SectionHead
-          eyebrow="SUPERVISED EXECUTION"
-          title={<>Human-approved <span className="v-grad">agent execution.</span></>}
+          eyebrow="OPERATING MODE"
+          title={<>How agents <span className="v-grad">use Verun.</span></>}
           sub="Submit an agent's intent. Get a real consensus decision. Anchored on Algorand."
         />
 
