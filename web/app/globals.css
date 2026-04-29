@@ -1134,49 +1134,6 @@ code { font-family: var(--mono); font-size: 0.9em; }
 }
 
 /* ──────────────────────────────────────────────────────────
-   MODES — inline score-gates strip (compact summary, lives under mode cards)
-   ────────────────────────────────────────────────────────── */
-.v-modes-gates {
-  margin-top: 38px;
-  padding: 22px 24px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  text-align: center;
-}
-.v-modes-gates-label {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  margin-bottom: 14px;
-}
-.v-modes-gates-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
-.v-modes-gate {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 14px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  font-family: var(--mono);
-  font-size: 12.5px;
-  background: var(--bg-2);
-}
-.v-modes-gate code {
-  color: var(--text);
-  font-weight: 600;
-  font-family: inherit;
-}
-
-/* ──────────────────────────────────────────────────────────
    MODES — laptop frame + tab demos
    ────────────────────────────────────────────────────────── */
 .v-laptop {

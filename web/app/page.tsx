@@ -1808,36 +1808,6 @@ function Modes() {
         </motion.div>
 
         <CurlBlock activeTab={activeTab} />
-
-        <motion.div
-          className="v-modes-gates"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-10%" }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-        >
-          <div className="v-modes-gates-label">
-            Operation thresholds enforced at the tokenforge Chain API.
-          </div>
-          <div className="v-modes-gates-row">
-            <span className="v-modes-gate" style={{ borderColor: C.orange + "55" }}>
-              <code>read</code>
-              <span style={{ color: C.orange }}>≥ 300</span>
-            </span>
-            <span className="v-modes-gate" style={{ borderColor: C.violet + "55" }}>
-              <code>transfer</code>
-              <span style={{ color: C.violet }}>≥ 500</span>
-            </span>
-            <span className="v-modes-gate" style={{ borderColor: C.violet + "55" }}>
-              <code>mint</code>
-              <span style={{ color: C.violet }}>≥ 500</span>
-            </span>
-            <span className="v-modes-gate" style={{ borderColor: C.lime + "55" }}>
-              <code>order</code>
-              <span style={{ color: C.lime }}>≥ 600</span>
-            </span>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
