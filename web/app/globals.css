@@ -804,7 +804,7 @@ code { font-family: var(--mono); font-size: 0.9em; }
 .v-comp-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
 }
-@media (max-width: 760px) { .v-comp-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .v-comp-grid { grid-template-columns: 1fr; } }
 .v-comp {
   position: relative; overflow: hidden;
   background: var(--surface);
@@ -855,21 +855,6 @@ code { font-family: var(--mono); font-size: 0.9em; }
   flex-shrink: 0;
 }
 .v-comp-audit strong { color: var(--text); font-weight: 600; }
-
-.v-comp-extra {
-  margin-top: 22px; text-align: center;
-  font-family: var(--mono);
-  font-size: 11.5px; letter-spacing: 0.12em;
-  color: var(--text-3); text-transform: uppercase;
-}
-.v-comp-extra span {
-  color: var(--text-2);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  padding: 4px 10px;
-  border-radius: 999px;
-  margin: 0 2px;
-}
 
 .v-comp-mica {
   margin-top: 18px; padding: 14px 22px;

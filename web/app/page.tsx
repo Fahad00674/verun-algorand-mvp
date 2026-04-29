@@ -2465,21 +2465,13 @@ function Compliance() {
       role: "Applies when agents route orders for regulated instruments.",
       accent: C.lime,
     },
-    {
-      name: "eIDAS 2.0 / EUDI",
-      cite: "Reg. 2024/1183",
-      scope: "Attribute attestations, qualified signatures, EUDI Wallet.",
-      role: "Verun SBT is interoperable with EUDI architecture.",
-      accent: C.rose,
-    },
   ];
   return (
     <section id="compliance" className="v-section">
       <div className="v-container">
         <SectionHead
           eyebrow="EU REGULATORY ANCHORS"
-          title={<>Designed around the <span className="v-grad">agentic regulatory stack.</span></>}
-          sub="Verun is not a crypto-asset. The SBT is a non-tradeable credential. Primary regulatory anchors below."
+          title={<>Primary <span className="v-grad">regulatory anchors.</span></>}
         />
         <motion.div
           className="v-comp-grid"
@@ -2509,16 +2501,6 @@ function Compliance() {
         </motion.div>
 
         <motion.div
-          className="v-comp-extra"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-        >
-          Also aligned with: <span>DORA</span> · <span>eWpG</span>
-        </motion.div>
-
-        <motion.div
           className="v-comp-audit"
           style={{
             background: "rgba(255,255,255,0.02)",
@@ -2540,7 +2522,7 @@ function Compliance() {
             DISCLOSURE
           </div>
           <div>
-            This page reflects the team&rsquo;s design intent. Independent legal review is planned. Verun is not a crypto-asset; the SBT is a non-tradeable credential — MiCA is not Verun&rsquo;s primary regulatory frame. Nothing here constitutes certified compliance or legal advice.
+            This page reflects the team&rsquo;s design intent. Independent legal review is planned. Nothing here constitutes certified compliance or legal advice.
           </div>
         </motion.div>
       </div>
