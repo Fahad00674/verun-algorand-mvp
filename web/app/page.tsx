@@ -2556,8 +2556,6 @@ function Team() {
     {
       name: "Rafael Schultz",
       role: "Managing Partner",
-      tag: "SIGNATORY",
-      tagColor: C.lime,
       badges: ["Deutsche Bank · EVO Payments", "U.S. Bank · Elavon", "DASH DAO"],
       linkedin: "https://www.linkedin.com/in/rafaelschultz/",
     },
@@ -2576,8 +2574,6 @@ function Team() {
     {
       name: "Fahad Farooq",
       role: "Project Assistant Manager",
-      tag: "TECHNICAL CONTACT",
-      tagColor: C.violet,
       badges: ["BCP Labs"],
       linkedin: "https://www.linkedin.com/in/fahadfaroooq/",
     },
@@ -2588,7 +2584,7 @@ function Team() {
         <SectionHead
           eyebrow="TEAM"
           title={<>Built by <span className="v-grad">operators.</span></>}
-          sub="BCP Partners GmbH · Berlin · founded by senior banking and payments practitioners."
+          sub="BCP Partners GmbH · Berlin · founded by senior banking and payments engineers."
         />
         <motion.div
           className="v-team"
@@ -2604,14 +2600,6 @@ function Team() {
               variants={{ hidden: { opacity: 0, y: 22 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6 } } }}
               whileHover={{ y: -4 }}
             >
-              {p.tag && (
-                <span
-                  className="v-tcard-tag"
-                  style={{ color: p.tagColor, borderColor: (p.tagColor || "") + "55" }}
-                >
-                  {p.tag}
-                </span>
-              )}
               <div className="v-tcard-namerow">
                 <div className="v-tcard-name">{p.name}</div>
                 <a

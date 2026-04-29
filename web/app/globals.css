@@ -898,16 +898,6 @@ code { font-family: var(--mono); font-size: 0.9em; }
   transition: border-color 0.3s, background 0.3s;
 }
 .v-tcard:hover { border-color: var(--border-strong); background: var(--surface-2); }
-.v-tcard-tag {
-  display: inline-flex;
-  align-self: flex-start;
-  margin-bottom: 14px;
-  font-family: var(--mono); font-size: 9px; font-weight: 600;
-  letter-spacing: 0.2em;
-  padding: 4px 9px; border-radius: 5px;
-  border: 1px solid;
-  background: rgba(10,10,15,0.6);
-}
 .v-tcard-namerow {
   display: flex;
   align-items: center;
