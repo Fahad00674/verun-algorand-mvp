@@ -192,7 +192,7 @@ code { font-family: var(--mono); font-size: 0.9em; }
   z-index: 2;
   display: flex; flex-direction: column; align-items: center;
   text-align: center;
-  padding-top: 8vh;
+  padding-top: calc(8vh + 32px);
 }
 
 .v-ticker {

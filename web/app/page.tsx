@@ -224,28 +224,7 @@ function Hero() {
       <div className="v-hero-grid" aria-hidden />
       <div className="v-hero-noise" aria-hidden />
 
-      <LiveTicker />
-
       <div className="v-hero-inner v-container">
-        <motion.p
-          className="v-problem"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.05 }}
-        >
-          AI agents are about to transact billions. Today, they can&rsquo;t legally touch regulated EU finance.
-        </motion.p>
-
-        <motion.div
-          className="v-eyebrow"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <span className="v-eyebrow-pulse" />
-          The EU-Aligned Agent Trust Layer
-        </motion.div>
-
         <h1 className="v-h1">
           <div className="v-h1-line">
             {line1.map((w, i) => (
