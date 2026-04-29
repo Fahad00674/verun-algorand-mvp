@@ -1948,7 +1948,7 @@ function SupervisedDemo() {
 /* ────────────────────────────────────────────────────────────
  * TRY-IT-LIVE — fires a real /api/evaluate request and shows the response
  * ──────────────────────────────────────────────────────────── */
-const TRYIT_ENDPOINT = "https://verun-algorand-mvp.vercel.app/api/evaluate";
+const TRYIT_ENDPOINT = "/api/evaluate";
 const TRYIT_PAYLOAD = {
   agentId: "agt_demo",
   score: 820,
@@ -1994,7 +1994,26 @@ function TryItLive() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(TRYIT_PAYLOAD),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      if (!res.ok) {
+        let message = `Request failed (status: ${res.status})`;
+        try {
+          const errBody = (await res.json()) as Record<string, unknown>;
+          const detail =
+            (typeof errBody.error === "string" && errBody.error) ||
+            (typeof errBody.detail === "string" && errBody.detail) ||
+            (typeof errBody.message === "string" && errBody.message) ||
+            null;
+          if (detail) message = detail;
+        } catch {
+          /* non-JSON body — fall back to status code */
+        }
+        setResult({ ok: false, error: message });
+        setRunning(false);
+        setTimeout(() => setDisabled(false), 5000);
+        return;
+      }
+
       const data = (await res.json()) as Record<string, unknown>;
 
       const permitted =
@@ -2010,10 +2029,14 @@ function TryItLive() {
       setResult({ ok: true, permitted, consensus, txid: txidRaw });
       setRunning(false);
       setTimeout(() => setDisabled(false), 5000);
-    } catch {
-      setResult({ ok: false, error: "Request failed — try again" });
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message
+          ? `Request failed — ${err.message}`
+          : "Request failed — try again";
+      setResult({ ok: false, error: message });
       setRunning(false);
-      setTimeout(() => setDisabled(false), 2000);
+      setTimeout(() => setDisabled(false), 5000);
     }
   };
 
