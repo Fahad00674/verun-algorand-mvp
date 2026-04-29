@@ -1569,7 +1569,7 @@ function SectionHead({
   title,
   sub,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: ReactNode;
   sub?: ReactNode;
 }) {
@@ -1581,12 +1581,14 @@ function SectionHead({
       viewport={{ once: true, margin: "-15%" }}
       variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
     >
-      <motion.span
-        className="v-section-eyebrow"
-        variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
-      >
-        {eyebrow}
-      </motion.span>
+      {eyebrow && (
+        <motion.span
+          className="v-section-eyebrow"
+          variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
+        >
+          {eyebrow}
+        </motion.span>
+      )}
       <motion.h2
         className="v-section-title"
         variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
@@ -2269,7 +2271,7 @@ function ValidatorNetwork() {
       tagColor: C.lime,
       desc:
         "White-label Security Token platform (TokenSuite). eWpG-compliant, BaFin-relevant, MiFID II-ready. Integrates with Cashlink (regulated crypto securities registrar). Chain API gates programmatic agent access.",
-      tags: ["eWpG", "BaFin", "MiFID II", "Cashlink", "ERC-1400"],
+      tags: ["eWpG", "BaFin", "MiFID II", "Genesis"],
     },
     {
       name: "BCP Partners",
@@ -2285,7 +2287,7 @@ function ValidatorNetwork() {
       tagColor: C.lime,
       tagAction: () => setValidatorModalOpen(true),
       desc:
-        "Open slot reserved for an institutional validator on Algorand mainnet (planned Q3 2026). Targeting EU banks, custodians, and regulated compliance partners.",
+        "Open slot reserved for an institutional validator. Custodians and regulated compliance partners welcome.",
       tags: ["Banks", "Custodians", "Institutional"],
     },
   ];
@@ -2294,13 +2296,12 @@ function ValidatorNetwork() {
     <section id="validators" className="v-section">
       <div className="v-container">
         <SectionHead
-          eyebrow="VALIDATOR NETWORK"
           title={
             <>
               Three validators. <span className="v-grad">One consensus.</span>
             </>
           }
-          sub="Two founding validators + one open slot for institutional partners. Test Validator on testnet (Q3 2026 mainnet replacement)."
+          sub="Two founding validators + one open slot for institutional partners."
         />
         <motion.div
           className="v-vnet"
