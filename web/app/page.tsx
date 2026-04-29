@@ -272,8 +272,6 @@ function Hero() {
           plug into Europe&rsquo;s regulated finance rails.
         </motion.p>
 
-        <TrustSignals />
-
         <motion.div
           className="v-hero-stage"
           initial={{ opacity: 0, y: 24 }}
