@@ -278,6 +278,7 @@ function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.0, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
         >
+          <AgentFlow />
           <motion.div
             className="v-hero-sig"
             style={{ x: sigX, y: sigY }}
@@ -290,46 +291,15 @@ function Hero() {
         </motion.div>
 
         <motion.div
-          className="v-hero-stats"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.1, delayChildren: 2.4 } },
-          }}
-        >
-          <StatCell value="5" unit="endpoints" label="Live on testnet" />
-          <StatCell value="820" unit="/ 1000" label="Reference score" />
-          <StatCell value="3.9" unit="s" label="Anchor finality" />
-          <StatCell value="2-of-3" unit="" label="Consensus threshold" />
-        </motion.div>
-
-        <motion.div
-          className="v-hero-cta"
+          className="v-hero-tagline"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 2.8 }}
+          transition={{ duration: 0.7, delay: 2.4 }}
         >
-          <Magnetic>
-            <a
-              href="https://verun-algorand-mvp.vercel.app/docs.html"
-              className="v-btn v-btn-primary"
-              target="_blank"
-              rel="noopener"
-            >
-              Read the Docs <Arrow />
-            </a>
-          </Magnetic>
-          <Magnetic>
-            <a
-              href="https://github.com/Fahad00674/verun-algorand-mvp"
-              className="v-btn v-btn-ghost"
-              target="_blank"
-              rel="noopener"
-            >
-              View on GitHub <ExternalIcon />
-            </a>
-          </Magnetic>
+          <p>Trust scoring for any AI agent. Any LLM. Any custom stack.</p>
+          <a href="#modes" className="v-hero-scrolldown">
+            ↓ See how it works
+          </a>
         </motion.div>
 
         <motion.div
@@ -649,6 +619,163 @@ function StatCell({ value, unit, label }: { value: string; unit: string; label: 
         {unit && <span className="v-stat-unit">{unit}</span>}
       </div>
       <div className="v-stat-label">{label}</div>
+    </motion.div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+ * AGENT FLOW — animated agents converging on the score meter
+ * ──────────────────────────────────────────────────────────── */
+type AgentCard = {
+  uid: number;
+  label: string;
+  score: number;
+  spawn: { x: string; y: string };
+};
+
+const AGENT_IDS = [
+  "agt_4f2",
+  "agt_a91",
+  "agt_x7c",
+  "agt_b3e",
+  "agt_d50",
+  "agt_q7k",
+  "agt_p2n",
+  "agt_m8a",
+  "agt_v1z",
+  "agt_h6j",
+];
+const AGENT_SCORES = [620, 740, 820, 680, 910, 760, 850, 690, 800, 730];
+
+function pickSpawnPoint(): { x: string; y: string } {
+  const edge = Math.floor(Math.random() * 3);
+  if (edge === 0) {
+    return { x: "6%", y: `${15 + Math.random() * 70}%` };
+  }
+  if (edge === 1) {
+    return { x: "94%", y: `${15 + Math.random() * 70}%` };
+  }
+  return { x: `${15 + Math.random() * 70}%`, y: "8%" };
+}
+
+function AgentFlow() {
+  const [agents, setAgents] = useState<AgentCard[]>([]);
+  const [paused, setPaused] = useState(false);
+  const idRef = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPaused(!entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (paused) return;
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
+    const spawnRate = isMobile ? 2000 : 950;
+    const maxInFlight = isMobile ? 3 : 5;
+
+    const spawn = () => {
+      setAgents((prev) => {
+        if (prev.length >= maxInFlight) return prev;
+        const id = idRef.current++;
+        return [
+          ...prev,
+          {
+            uid: id,
+            label: AGENT_IDS[Math.floor(Math.random() * AGENT_IDS.length)],
+            score:
+              AGENT_SCORES[Math.floor(Math.random() * AGENT_SCORES.length)],
+            spawn: pickSpawnPoint(),
+          },
+        ];
+      });
+    };
+
+    spawn();
+    const t = setInterval(spawn, spawnRate);
+    return () => clearInterval(t);
+  }, [paused]);
+
+  const handleComplete = (uid: number) => {
+    setAgents((prev) => prev.filter((a) => a.uid !== uid));
+  };
+
+  return (
+    <div ref={containerRef} className="v-agent-flow" aria-hidden>
+      <AnimatePresence>
+        {agents.map((a) => (
+          <AgentCardItem
+            key={a.uid}
+            agent={a}
+            onComplete={() => handleComplete(a.uid)}
+          />
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function AgentCardItem({
+  agent,
+  onComplete,
+}: {
+  agent: AgentCard;
+  onComplete: () => void;
+}) {
+  const [showScore, setShowScore] = useState(false);
+  const [exiting, setExiting] = useState(false);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setShowScore(true), 2300);
+    const t2 = setTimeout(() => setExiting(true), 2700);
+    const t3 = setTimeout(onComplete, 3500);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [onComplete]);
+
+  return (
+    <motion.div
+      className="v-agent-card"
+      initial={{
+        left: agent.spawn.x,
+        top: agent.spawn.y,
+        opacity: 0,
+        scale: 0.55,
+      }}
+      animate={
+        exiting
+          ? { left: "50%", top: "50%", opacity: 0, scale: 0.4 }
+          : { left: "50%", top: "50%", opacity: 1, scale: 1 }
+      }
+      transition={{
+        duration: exiting ? 0.7 : 2.5,
+        ease: exiting ? "easeIn" : [0.22, 1, 0.36, 1],
+      }}
+    >
+      <span className="v-agent-label">{agent.label}</span>
+      <AnimatePresence>
+        {showScore && !exiting && (
+          <motion.span
+            className="v-agent-score"
+            initial={{ opacity: 0, y: -2 }}
+            animate={{ opacity: 1, y: -16 }}
+            exit={{ opacity: 0, y: -22 }}
+            transition={{ duration: 0.3 }}
+          >
+            +{agent.score}
+          </motion.span>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
