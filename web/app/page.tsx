@@ -678,7 +678,7 @@ function AgentFlow() {
   useEffect(() => {
     if (paused) return;
     const isMobile = typeof window !== "undefined" && window.innerWidth < 900;
-    const spawnRate = isMobile ? 2000 : 950;
+    const spawnRate = isMobile ? 2000 : 1500;
     const maxInFlight = isMobile ? 3 : 5;
 
     const spawn = () => {
@@ -729,19 +729,32 @@ function AgentCardItem({
   agent: AgentCard;
   onComplete: () => void;
 }) {
-  const [showScore, setShowScore] = useState(false);
-  const [exiting, setExiting] = useState(false);
+  const [phase, setPhase] = useState<"flying" | "verified" | "exiting">("flying");
+  const [scoreVisible, setScoreVisible] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setShowScore(true), 2300);
-    const t2 = setTimeout(() => setExiting(true), 2700);
-    const t3 = setTimeout(onComplete, 3500);
+    const t1 = setTimeout(() => {
+      setPhase("verified");
+      setScoreVisible(true);
+    }, 3500);
+    const t2 = setTimeout(() => setScoreVisible(false), 4000);
+    const t3 = setTimeout(() => setPhase("exiting"), 4600);
+    const t4 = setTimeout(onComplete, 5800);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
+      clearTimeout(t4);
     };
   }, [onComplete]);
+
+  const sx = parseFloat(agent.spawn.x);
+  const sy = parseFloat(agent.spawn.y);
+  const exitX = `${50 + (sx - 50) * 0.4}%`;
+  const exitY = `${50 + (sy - 50) * 0.4}%`;
+
+  const baseShadow = "0 0 12px rgba(159,109,255,0.25)";
+  const burstShadow = "0 0 32px rgba(159,109,255,0.75)";
 
   return (
     <motion.div
@@ -751,25 +764,52 @@ function AgentCardItem({
         top: agent.spawn.y,
         opacity: 0,
         scale: 0.55,
+        boxShadow: baseShadow,
       }}
       animate={
-        exiting
-          ? { left: "50%", top: "50%", opacity: 0, scale: 0.4 }
-          : { left: "50%", top: "50%", opacity: 1, scale: 1 }
+        phase === "flying"
+          ? {
+              left: "50%",
+              top: "50%",
+              opacity: 0.95,
+              scale: 1,
+              boxShadow: baseShadow,
+            }
+          : phase === "verified"
+            ? {
+                left: "50%",
+                top: "50%",
+                opacity: 0.95,
+                scale: [1, 1.15, 1],
+                boxShadow: [baseShadow, burstShadow, baseShadow],
+              }
+            : {
+                left: exitX,
+                top: exitY,
+                opacity: 0,
+                scale: 0.6,
+                boxShadow: baseShadow,
+              }
       }
       transition={{
-        duration: exiting ? 0.7 : 2.5,
-        ease: exiting ? "easeIn" : [0.22, 1, 0.36, 1],
+        duration:
+          phase === "flying" ? 3.7 : phase === "verified" ? 0.3 : 1.2,
+        ease:
+          phase === "flying"
+            ? [0.22, 1, 0.36, 1]
+            : phase === "verified"
+              ? "easeOut"
+              : [0.4, 0, 0.6, 1],
       }}
     >
       <span className="v-agent-label">{agent.label}</span>
       <AnimatePresence>
-        {showScore && !exiting && (
+        {scoreVisible && (
           <motion.span
             className="v-agent-score"
-            initial={{ opacity: 0, y: -2 }}
-            animate={{ opacity: 1, y: -16 }}
-            exit={{ opacity: 0, y: -22 }}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: -22 }}
+            exit={{ opacity: 0, y: -28 }}
             transition={{ duration: 0.3 }}
           >
             +{agent.score}
