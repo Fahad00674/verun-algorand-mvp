@@ -2020,10 +2020,17 @@ function TryItLive() {
         typeof data.permitted === "boolean" ? data.permitted : true;
       const consensus =
         typeof data.consensus === "string" ? data.consensus : "2-of-3";
+      const anchor =
+        data.anchor && typeof data.anchor === "object"
+          ? (data.anchor as Record<string, unknown>)
+          : null;
       const txidRaw =
-        (data.txid as string | undefined) ??
-        (data.txId as string | undefined) ??
-        (data.transactionId as string | undefined) ??
+        (typeof data.txid === "string" ? data.txid : undefined) ??
+        (typeof data.txId === "string" ? data.txId : undefined) ??
+        (typeof data.transactionId === "string" ? data.transactionId : undefined) ??
+        (anchor && typeof anchor.txid === "string" ? anchor.txid : undefined) ??
+        (anchor && typeof anchor.txId === "string" ? anchor.txId : undefined) ??
+        (anchor && typeof anchor.transactionId === "string" ? anchor.transactionId : undefined) ??
         null;
 
       setResult({ ok: true, permitted, consensus, txid: txidRaw });
@@ -2105,7 +2112,7 @@ function TryItLive() {
                     <a
                       href={`https://lora.algokit.io/testnet/tx/${result.txid}`}
                       target="_blank"
-                      rel="noopener"
+                      rel="noopener noreferrer"
                       className="v-tryit-txid"
                     >
                       {truncateTxid(result.txid)}
@@ -2113,7 +2120,7 @@ function TryItLive() {
                     <a
                       href={`https://lora.algokit.io/testnet/tx/${result.txid}`}
                       target="_blank"
-                      rel="noopener"
+                      rel="noopener noreferrer"
                       className="v-tryit-verify"
                     >
                       Verify on Lora →

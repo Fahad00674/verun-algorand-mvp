@@ -1626,8 +1626,13 @@ code { font-family: var(--mono); font-size: 0.9em; }
   padding-bottom: 1px;
   font-family: var(--mono);
   font-weight: 600;
+  transition: color 0.2s, border-bottom-color 0.2s, border-bottom-style 0.2s;
 }
-.v-tryit-txid:hover { border-bottom-style: solid; }
+.v-tryit-txid:hover {
+  color: var(--violet-bright);
+  border-bottom-color: var(--violet-bright);
+  border-bottom-style: solid;
+}
 .v-tryit-verify {
   display: inline-flex;
   align-items: center;
